@@ -1,0 +1,73 @@
+{
+  "recorded_at": "2026-11-04T21:52:09.264Z",
+  "base": "http://127.0.0.1:18108",
+  "seekdb": "seekdb-js 1.4.0 / local server",
+  "dataset": "two synthetic 384-dimensional chunks",
+  "checks": [
+    {
+      "label": "seekdb bridge connected",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "new chunks are unknown",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "unchanged chunks are detected before embedding",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "changed content requires embedding",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "refresh exposes both chunks",
+      "passed": true,
+      "detail": "{\"refreshed\":true,\"visible_rows\":2}"
+    },
+    {
+      "label": "hybrid search returns stored document",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "search result includes original text and rank",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "different model profile is isolated",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "shorter file removes stale tail only",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "first chunk retained and old tail removed",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wrong vector dimension rejected",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "missing model profile rejected",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "latency_ms": {
+    "samples": 20,
+    "p50": 8.83137499999998,
+    "p95": 10.518167000000176
+  }
+}

@@ -1,0 +1,21 @@
+body { font-family: -apple-system, "PingFang SC", "Segoe UI", sans-serif; margin: 0; background: #0f1220; color: #e8eaf2; }
+header { padding: 16px 24px; border-bottom: 1px solid #2a2f45; }
+h1 { font-size: 18px; margin: 0 0 8px; }
+.statusbar { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; background: #2a2f45; }
+.badge.ok { background: #1d5c3a; }
+.badge.warn { background: #8a5a1d; }
+main { max-width: 960px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+.panel { background: #181c2e; border: 1px solid #2a2f45; border-radius: 10px; padding: 16px; }
+.panel h2 { font-size: 14px; margin-top: 0; }
+label { display: block; margin: 8px 0; font-size: 13px; }
+input, select, textarea { background: #0f1220; color: #e8eaf2; border: 1px solid #3a4060; border-radius: 6px; padding: 6px 8px; }
+textarea { width: 100%; box-sizing: border-box; }
+button { background: #4a6cf7; color: white; border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer; margin: 4px 0; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+.hint { color: #9aa3c0; font-size: 12px; }
+.progress { height: 6px; background: #0f1220; border-radius: 3px; overflow: hidden; margin: 8px 0; }
+#progress-bar { height: 100%; width: 0; background: #4a6cf7; transition: width 0.2s; }
+#results li { margin-bottom: 12px; }
+#results .score { color: #7fd6a4; font-size: 12px; margin-left: 8px; }
+#log { max-height: 200px; overflow: auto; font-size: 12px; color: #9aa3c0; white-space: pre-wrap; }

@@ -1,0 +1,6 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>StepFun 可复现实测</title><link rel="stylesheet" href="./styles.css"></head>
+<body><main><section class="panel"><h1>端侧推理与检索实测</h1>
+<p>使用公开 MiniLM 模型、合成英文语料与本地 seekdb，比较 fp32 和 q8；会下载相应模型权重。结果写在本页，不调用云端推理。</p>
+<button id="run">运行实测</button> <a id="download" hidden download="stepfun-benchmark-result.json">下载结果 JSON</a><p id="status">待运行</p><pre id="output"></pre>
+</section></main><script src="./seekdb-client.js"></script><script src="./embedder.js"></script><script src="./benchmark.js"></script></body></html>

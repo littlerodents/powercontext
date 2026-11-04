@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>端侧向量化迷你知识库 · StepFun 赛题</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header>
+    <h1>端侧向量化迷你知识库</h1>
+    <div class="statusbar">
+      <span id="backend-badge" class="badge unknown">后端检测中…</span>
+      <span id="model-badge" class="badge">模型：未加载</span>
+      <span id="db-badge" class="badge">seekdb：未连接</span>
+      <span id="collection-badge" class="badge">集合：-</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel" id="setup">
+      <h2>1. 模型与量化（本机推理）</h2>
+      <label>模型
+        <select id="model-select">
+          <option value="minilm" selected>Xenova/all-MiniLM-L6-v2（英文）</option>
+        </select>
+      </label>
+      <label>量化 dtype
+        <select id="dtype-select">
+          <option value="fp16" selected>fp16（默认）</option>
+          <option value="fp32">fp32（基线）</option>
+        </select>
+      </label>
+      <label>后端
+        <select id="device-select">
+          <option value="auto" selected>自动（WebGPU 优先，失败降级 WASM）</option>
+          <option value="wasm">强制 WASM</option>
+        </select>
+      </label>
+      <button id="load-model-btn">加载模型</button>
+      <p class="hint" id="load-hint">首次加载会从 HF CDN 下载 ONNX 权重并缓存；此后全部推理在本机浏览器内完成，无云端推理调用。</p>
+    </section>
+
+    <section class="panel" id="import-panel">
+      <h2>2. 导入语料（增量）</h2>
+      <label>集合名 <input id="collection-input" placeholder="my_kb" /></label>
+      <button id="switch-collection-btn">切换/新建集合</button>
+      <textarea id="import-text" rows="6" placeholder="粘贴要导入的文本；也可选择 .txt/.md 文件批量导入"></textarea>
+      <input type="file" id="import-files" multiple accept=".txt,.md,.markdown" />
+      <label>chunk 大小 <input id="chunk-size" type="number" value="500" min="100" max="2000" /> 字符，重叠
+        <input id="chunk-overlap" type="number" value="50" min="0" max="200" />
+      </label>
+      <button id="import-btn" disabled>开始导入（增量，自动跳过重复内容）</button>
+      <div class="progress"><div id="progress-bar"></div></div>
+      <p class="hint" id="import-hint"></p>
+    </section>
+
+    <section class="panel" id="search-panel">
+      <h2>3. 混合检索（seekdb 完成向量 + 全文）</h2>
+      <input id="query-input" placeholder="输入查询，例如：退款政策对过期订单怎么处理？" />
+      <label>topK <input id="topk-input" type="number" value="10" min="1" max="50" /></label>
+      <button id="search-btn" disabled>检索</button>
+      <ol id="results"></ol>
+    </section>
+
+    <section class="panel" id="log-panel">
+      <h2>运行日志</h2>
+      <pre id="log"></pre>
+    </section>
+  </main>
+
+  <script src="./seekdb-client.js"></script>
+  <script src="./embedder.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

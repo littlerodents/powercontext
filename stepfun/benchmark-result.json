@@ -1,0 +1,443 @@
+{
+  "started_at": "2026-11-04T21:45:44.800Z",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+  "corpus_size": 12,
+  "query_count": 8,
+  "collection": "sf_bench_1793828744800",
+  "reports": [
+    {
+      "dtype": "q8",
+      "backend": "webgpu",
+      "model_files": {
+        "onnx/model_quantized.onnx": 22972370
+      },
+      "model_bytes_from_progress": 22972370,
+      "load_ms": 323.1,
+      "batch1_ms": 290.1,
+      "batch8_ms": 140.3,
+      "batch_vector_cosine_min": 0.38555341295795065,
+      "refresh_ms": 453.6,
+      "seekdb_ms_p50": 11,
+      "quality": [
+        {
+          "query": "How long can I return an unused item and get my money back?",
+          "expected": "refund",
+          "top3": [
+            "refund",
+            "coffee",
+            "membership"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "coffee",
+            "refund",
+            "membership"
+          ]
+        },
+        {
+          "query": "When should my parcel arrive?",
+          "expected": "shipping",
+          "top3": [
+            "coffee",
+            "garden",
+            "refund"
+          ],
+          "hit": false,
+          "vector_reference_top3": [
+            "refund",
+            "coffee",
+            "garden"
+          ]
+        },
+        {
+          "query": "I forgot my login secret, how do I recover access?",
+          "expected": "password",
+          "top3": [
+            "refund",
+            "garden",
+            "train"
+          ],
+          "hit": false,
+          "vector_reference_top3": [
+            "refund",
+            "garden",
+            "train"
+          ]
+        },
+        {
+          "query": "Where can I obtain a receipt for taxes?",
+          "expected": "invoice",
+          "top3": [
+            "coffee",
+            "garden",
+            "refund"
+          ],
+          "hit": false,
+          "vector_reference_top3": [
+            "refund",
+            "coffee",
+            "garden"
+          ]
+        },
+        {
+          "query": "How long is a factory defect covered?",
+          "expected": "warranty",
+          "top3": [
+            "coffee",
+            "refund",
+            "membership"
+          ],
+          "hit": false,
+          "vector_reference_top3": [
+            "refund",
+            "coffee",
+            "membership"
+          ]
+        },
+        {
+          "query": "How do I keep a restorable copy of my data?",
+          "expected": "backup",
+          "top3": [
+            "coffee",
+            "refund",
+            "membership"
+          ],
+          "hit": false,
+          "vector_reference_top3": [
+            "coffee",
+            "refund",
+            "membership"
+          ]
+        },
+        {
+          "query": "What time does the airport rail service stop?",
+          "expected": "train",
+          "top3": [
+            "refund",
+            "membership",
+            "garden"
+          ],
+          "hit": false,
+          "vector_reference_top3": [
+            "refund",
+            "membership",
+            "garden"
+          ]
+        },
+        {
+          "query": "What benefits come with a premium account?",
+          "expected": "membership",
+          "top3": [
+            "refund",
+            "invoice",
+            "garden"
+          ],
+          "hit": false,
+          "vector_reference_top3": [
+            "refund",
+            "garden",
+            "invoice"
+          ]
+        }
+      ],
+      "recall_at_3": 0.125
+    },
+    {
+      "dtype": "fp32",
+      "backend": "webgpu",
+      "model_files": {
+        "onnx/model.onnx": 90387606
+      },
+      "model_bytes_from_progress": 90387606,
+      "load_ms": 260.1,
+      "batch1_ms": 52,
+      "batch8_ms": 12.6,
+      "batch_vector_cosine_min": 0.9999997413918454,
+      "refresh_ms": 524.8,
+      "seekdb_ms_p50": 10,
+      "quality": [
+        {
+          "query": "How long can I return an unused item and get my money back?",
+          "expected": "refund",
+          "top3": [
+            "refund",
+            "warranty",
+            "shipping"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "refund",
+            "warranty",
+            "shipping"
+          ]
+        },
+        {
+          "query": "When should my parcel arrive?",
+          "expected": "shipping",
+          "top3": [
+            "shipping",
+            "invoice",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "shipping",
+            "invoice",
+            "refund"
+          ]
+        },
+        {
+          "query": "I forgot my login secret, how do I recover access?",
+          "expected": "password",
+          "top3": [
+            "password",
+            "backup",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "password",
+            "backup",
+            "refund"
+          ]
+        },
+        {
+          "query": "Where can I obtain a receipt for taxes?",
+          "expected": "invoice",
+          "top3": [
+            "invoice",
+            "backup",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "invoice",
+            "refund",
+            "backup"
+          ]
+        },
+        {
+          "query": "How long is a factory defect covered?",
+          "expected": "warranty",
+          "top3": [
+            "warranty",
+            "shipping",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "warranty",
+            "refund",
+            "shipping"
+          ]
+        },
+        {
+          "query": "How do I keep a restorable copy of my data?",
+          "expected": "backup",
+          "top3": [
+            "battery",
+            "backup",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "backup",
+            "battery",
+            "refund"
+          ]
+        },
+        {
+          "query": "What time does the airport rail service stop?",
+          "expected": "train",
+          "top3": [
+            "train",
+            "meeting",
+            "shipping"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "train",
+            "shipping",
+            "meeting"
+          ]
+        },
+        {
+          "query": "What benefits come with a premium account?",
+          "expected": "membership",
+          "top3": [
+            "membership",
+            "invoice",
+            "backup"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "membership",
+            "invoice",
+            "backup"
+          ]
+        }
+      ],
+      "recall_at_3": 1
+    },
+    {
+      "dtype": "fp16",
+      "backend": "webgpu",
+      "model_files": {
+        "onnx/model_fp16.onnx": 45297825
+      },
+      "model_bytes_from_progress": 45297825,
+      "load_ms": 126.6,
+      "batch1_ms": 56,
+      "batch8_ms": 10.1,
+      "batch_vector_cosine_min": 0.9999843968086429,
+      "refresh_ms": 636,
+      "seekdb_ms_p50": 7,
+      "quality": [
+        {
+          "query": "How long can I return an unused item and get my money back?",
+          "expected": "refund",
+          "top3": [
+            "refund",
+            "warranty",
+            "shipping"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "refund",
+            "warranty",
+            "shipping"
+          ]
+        },
+        {
+          "query": "When should my parcel arrive?",
+          "expected": "shipping",
+          "top3": [
+            "shipping",
+            "invoice",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "shipping",
+            "invoice",
+            "refund"
+          ]
+        },
+        {
+          "query": "I forgot my login secret, how do I recover access?",
+          "expected": "password",
+          "top3": [
+            "password",
+            "backup",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "password",
+            "backup",
+            "refund"
+          ]
+        },
+        {
+          "query": "Where can I obtain a receipt for taxes?",
+          "expected": "invoice",
+          "top3": [
+            "invoice",
+            "backup",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "invoice",
+            "refund",
+            "backup"
+          ]
+        },
+        {
+          "query": "How long is a factory defect covered?",
+          "expected": "warranty",
+          "top3": [
+            "warranty",
+            "shipping",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "warranty",
+            "refund",
+            "shipping"
+          ]
+        },
+        {
+          "query": "How do I keep a restorable copy of my data?",
+          "expected": "backup",
+          "top3": [
+            "battery",
+            "backup",
+            "refund"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "backup",
+            "battery",
+            "refund"
+          ]
+        },
+        {
+          "query": "What time does the airport rail service stop?",
+          "expected": "train",
+          "top3": [
+            "train",
+            "meeting",
+            "shipping"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "train",
+            "shipping",
+            "meeting"
+          ]
+        },
+        {
+          "query": "What benefits come with a premium account?",
+          "expected": "membership",
+          "top3": [
+            "membership",
+            "invoice",
+            "backup"
+          ],
+          "hit": true,
+          "vector_reference_top3": [
+            "membership",
+            "invoice",
+            "backup"
+          ]
+        }
+      ],
+      "recall_at_3": 1
+    }
+  ],
+  "auto_fallback": {
+    "q8": {
+      "backend": "wasm",
+      "expected": "refund",
+      "top3": [
+        "coffee",
+        "backup",
+        "meeting"
+      ],
+      "webgpu_wasm_cosine": -0.0385743299858924
+    },
+    "fp16": {
+      "backend": "wasm",
+      "expected": "refund",
+      "top3": [
+        "refund",
+        "warranty",
+        "shipping"
+      ],
+      "webgpu_wasm_cosine": 0.999989217639349
+    }
+  },
+  "completed_at": "2026-11-04T21:45:49.684Z"
+}
