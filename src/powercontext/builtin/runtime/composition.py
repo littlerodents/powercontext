@@ -121,6 +121,7 @@ from powercontext.builtin.runtime.application import (
     ScheduledSourceRunner,
 )
 from powercontext.builtin.runtime.artifact_processing import (
+    _COUNT_TRIGGER_POLL_SECONDS,
     ArtifactProcessingBinding,
     ArtifactProcessingSupervisor,
     ArtifactProcessingSupervisors,
@@ -771,6 +772,7 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
             entrypoint = partial(run_family_worker, FamilyWorkerSpec(config=config, worker_security=worker_security))
         interval = None if family == "profile" else automatic[family]
         binding = canonical[family]
+        count_thresholds = config.runtime.source_count_thresholds()
         configured.append(
             ArtifactProcessingBinding(
                 binding_name=binding,
@@ -787,6 +789,9 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
                 if family == "skill"
                 else SourceProcessingPendingProvider(contexts.database, binding, family),
                 automatic_scope_filter=enabled_profile_scopes if family == "profile" else None,
+                count_trigger_poll_seconds=_COUNT_TRIGGER_POLL_SECONDS
+                if count_thresholds.binding_enabled(binding)
+                else None,
             )
         )
     _validate_processing_registrations(configured)
@@ -947,6 +952,7 @@ async def open_builtin_contexts(
                 model_usage_queue_capacity=config.runtime.model_usage_queue_capacity,
                 model_usage_write_timeout_seconds=config.runtime.model_usage_write_timeout_seconds,
                 model_usage_flush_timeout_seconds=config.runtime.model_usage_flush_timeout_seconds,
+                source_count_thresholds=config.runtime.source_count_thresholds(),
                 source_registry=source_registry,
                 cursor_secret=cursor_secret,
                 tracing=tracing,
@@ -1024,6 +1030,7 @@ async def open_builtin_contexts(
             model_usage_queue_capacity=config.runtime.model_usage_queue_capacity,
             model_usage_write_timeout_seconds=config.runtime.model_usage_write_timeout_seconds,
             model_usage_flush_timeout_seconds=config.runtime.model_usage_flush_timeout_seconds,
+            source_count_thresholds=config.runtime.source_count_thresholds(),
             source_registry=source_registry,
             cursor_secret=cursor_secret,
             tracing=tracing,

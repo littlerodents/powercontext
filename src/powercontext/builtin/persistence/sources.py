@@ -38,6 +38,7 @@ from powercontext.builtin.persistence.errors import (
     RepositoryNotFoundError,
     StoredPayloadConflictError,
 )
+from powercontext.builtin.persistence.processing_count import SourceCountThresholds
 from powercontext.builtin.persistence.processing_intents import ArtifactProcessingIntentRepository
 from powercontext.builtin.persistence.tables import SOURCE_JOURNAL_HEADS_TABLE, SOURCES_TABLE
 from powercontext.builtin.sources.content import ContentSource
@@ -79,12 +80,15 @@ class SourceRepository:
         self,
         definitions: SourceDefinitionRegistry | Iterable[_AnySourceAdapter],
         /,
+        *,
+        count_thresholds: SourceCountThresholds | None = None,
     ) -> None:
         self._registry = (
             definitions
             if isinstance(definitions, SourceDefinitionRegistry)
             else SourceDefinitionRegistry.from_adapters(definitions)
         )
+        self._count_thresholds = count_thresholds
 
     async def add(
         self,
@@ -167,10 +171,14 @@ class SourceRepository:
             return stored, False
         # Centralized here so capture, record projection and import all publish
         # discoverable input atomically. Replayed Source identities do not dirty
-        # a binding again. Disabled processors simply retain ordinary dirty.
+        # a binding again.
         intents = ArtifactProcessingIntentRepository()
         for binding_name in SOURCE_PROCESSING_BINDINGS:
             await intents.mark_dirty(connection, scope_id, binding_name)
+        if self._count_thresholds is not None:
+            # Count admission joins the publishing transaction, so a threshold
+            # reached by this journal row is accepted atomically with it.
+            await self._count_thresholds.admit(connection, scope_id, position)
         return StoredSource(ref=ref, value=source, journal_position=position), True
 
     async def get(

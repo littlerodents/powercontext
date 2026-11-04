@@ -34,7 +34,10 @@ from pydantic import (
 
 from powercontext.builtin.artifacts.memory.prompts import MemoryExtractionProfile
 from powercontext.builtin.artifacts.skill import AgentSkillTarget, CodexSkillRoot
-from powercontext.builtin.artifacts.topic_memory import MAX_TOPIC_MEMORY_SEARCH_LIMIT
+from powercontext.builtin.artifacts.topic_memory import (
+    MAX_TOPIC_MEMORY_SEARCH_LIMIT,
+    TOPIC_MEMORY_SOURCE_WINDOW_BINDING,
+)
 from powercontext.builtin.artifacts.topic_memory.generation import (
     TopicMemoryGenerationError,
     topic_memory_stage_budget,
@@ -44,9 +47,11 @@ from powercontext.builtin.code.models import CodeConfig
 from powercontext.builtin.dream.models import DreamBudget
 from powercontext.builtin.inference import character_token_estimator
 from powercontext.builtin.persistence.oceanbase import OceanBaseConfig
+from powercontext.builtin.persistence.processing_count import SourceCountThresholds
 from powercontext.builtin.persistence.seekdb import SeekDBConfig
 from powercontext.builtin.persistence.sqlite import SQLiteConfig
 from powercontext.builtin.runtime._scope_cache import DEFAULT_SCOPE_CACHE_SIZE
+from powercontext.builtin.triggers import SOURCE_WINDOW_TRIGGER_NAME
 
 _HTTP_FIELD_NAME_PATTERN = re.compile(r"[!#$%&'*+\-.^_`|~0-9A-Za-z]+")
 _RECALL_GATE_BASE_MIN_SEMANTIC_SIMILARITY = 0.3
@@ -135,6 +140,17 @@ class RuntimeConfig(BaseModel):
             raise ValueError("Worker quota must be a positive integer")  # noqa: TRY003, TRY004 - Pydantic validation
         return value
 
+    @field_validator("memory_source_count_threshold", "topic_memory_source_count_threshold", mode="before")
+    @classmethod
+    def validate_source_count_threshold(cls, value: Any) -> Any:
+        if value is None:
+            return None
+        if isinstance(value, bool) or type(value) is not int:
+            raise ValueError("Source count threshold must be a strict positive integer or None")  # noqa: TRY003
+        if value < 1:
+            raise ValueError("Source count threshold must be a strict positive integer or None")  # noqa: TRY003
+        return value
+
     scope_cache_size: int = Field(default=DEFAULT_SCOPE_CACHE_SIZE, ge=1)
     source_window_limit: int = Field(default=100, ge=1)
     context_assembly_max_entries: int = Field(default=8, ge=1)
@@ -207,6 +223,10 @@ class RuntimeConfig(BaseModel):
     generation_concurrency: int = Field(default=4, ge=1, le=64)
     dream_budget: DreamBudget = Field(default_factory=DreamBudget)
     topic_memory_schedule_seconds: float | None = Field(default=None, gt=0)
+    # Count-based automatic admission, OR-ed with the time conditions above.
+    # None disables the count condition for that Family entirely.
+    memory_source_count_threshold: int | None = None
+    topic_memory_source_count_threshold: int | None = None
     topic_memory_source_window_limit: int = Field(default=10, ge=1)
     topic_memory_history_max_candidates: int = Field(default=20, ge=1, le=MAX_TOPIC_MEMORY_SEARCH_LIMIT)
     topic_memory_history_rrf_threshold: int = Field(default=70, ge=0, le=100)
@@ -242,6 +262,16 @@ class RuntimeConfig(BaseModel):
         ):
             raise ValueError("artifact_processing_families must contain unique, nonempty Family names")  # noqa: TRY003
         return self
+
+    def source_count_thresholds(self) -> SourceCountThresholds:
+        """Return the per-binding count-admission policy this configuration enables."""
+
+        thresholds: dict[str, int] = {}
+        if self.memory_source_count_threshold is not None:
+            thresholds[SOURCE_WINDOW_TRIGGER_NAME] = self.memory_source_count_threshold
+        if self.topic_memory_source_count_threshold is not None:
+            thresholds[TOPIC_MEMORY_SOURCE_WINDOW_BINDING] = self.topic_memory_source_count_threshold
+        return SourceCountThresholds(thresholds)
 
 
 class HandoffReportConfig(BaseModel):

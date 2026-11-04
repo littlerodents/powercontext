@@ -144,6 +144,7 @@ dev = [
     "ty>=0.0.24",
     "ruff>=0.15.7",
     "sqlalchemy>=2,<3",
+    "pypdf>=6.19,<7",
 ]
 
 [tool.uv.sources]

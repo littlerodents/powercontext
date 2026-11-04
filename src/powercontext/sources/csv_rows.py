@@ -25,7 +25,7 @@ from urllib.parse import quote
 from pydantic import BaseModel
 
 from powercontext.limits import MAX_SOURCE_ID_LENGTH
-from powercontext.sources.definitions import AdapterSourceDefinition, SourceDefinition
+from powercontext.sources.definitions import AdapterSourceDefinition
 from powercontext.sources.models import Source, SourceMaterialization
 from powercontext.sources.projections import TEXT_EVIDENCE_PROJECTION_KEY, TextEvidence
 
@@ -181,7 +181,7 @@ class _CSVRowTextEvidenceProjection:
     name = TEXT_EVIDENCE_PROJECTION_KEY.name
     version = TEXT_EVIDENCE_PROJECTION_KEY.version
     source_class = CSVRowSource
-    output_class = TextEvidence
+    output_class: type[BaseModel] = TextEvidence
 
     def project(self, source: CSVRowSource, /) -> TextEvidence:
         row = dict(zip(source.columns, source.values, strict=True))
@@ -229,10 +229,10 @@ class _CSVRowAdapter:
         )
 
 
-CSV_ROW_SOURCE_DEFINITION: SourceDefinition[CSVRowInput, CSVRowSource, CSVRowInput] = AdapterSourceDefinition(
-    _CSVRowAdapter(),  # type: ignore[arg-type]
+CSV_ROW_SOURCE_DEFINITION: AdapterSourceDefinition[CSVRowInput, CSVRowSource, CSVRowInput] = AdapterSourceDefinition(
+    _CSVRowAdapter(),
     version="1",
-    projections=(_CSVRowTextEvidenceProjection(),),  # type: ignore[list-item]
+    projections=(_CSVRowTextEvidenceProjection(),),
 )
 
 __all__ = [

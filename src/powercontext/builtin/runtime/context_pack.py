@@ -20,6 +20,7 @@ import base64
 import binascii
 import hashlib
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 CONTEXT_PACK_SCHEMA = "powercontext.context-pack.v1"
@@ -34,7 +35,7 @@ class ContextPackError(Exception):
     """Raised for protocol, chunking, or checksum violations in pack transport."""
 
 
-def _canonical_json(payload: dict[str, object], /) -> bytes:
+def _canonical_json(payload: Mapping[str, object], /) -> bytes:
     return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
