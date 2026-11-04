@@ -48,7 +48,10 @@ _ABBREVIATIONS = (
     (re.compile(r"\bd\s*&\s*a\b", re.IGNORECASE), lambda match: ("depreciation", "amortization")),
     (re.compile(r"\bcapex\b", re.IGNORECASE), lambda match: ("capital", "spending")),
     (re.compile(r"\bfy\s?(\d{4})\b", re.IGNORECASE), lambda match: (f"fiscal {match.group(1)}",)),
-    (re.compile(r"\b(?:battles?|lawsuits?|legal)\b", re.IGNORECASE), lambda match: ("litigation", "legal", "proceedings")),
+    (
+        re.compile(r"\b(?:battles?|lawsuits?|legal)\b", re.IGNORECASE),
+        lambda match: ("litigation", "legal", "proceedings"),
+    ),
     (re.compile(r"\bincome\b", re.IGNORECASE), lambda match: ("profit",)),
     (re.compile(r"\bgeograph(?:y|ies|ic|ical)\b", re.IGNORECASE), lambda match: ("geographic", "region", "segment")),
     (re.compile(r"\bcapex\b", re.IGNORECASE), lambda match: ("capital", "expenditure")),
@@ -448,6 +451,69 @@ def _search_variants(question: str, expanded: str, weights: dict[str, float]) ->
         key=lambda term: (-weights[term], -len(term), term),
     )[:12]
     variants.extend((f"term-{index}", term) for index, term in enumerate(terms))
+    variants.extend(_financial_statement_queries(question))
+    return variants
+
+
+_FINANCIAL_STATEMENT_RULES = (
+    (
+        "liquidity",
+        r"\b(?:quick|current|acid[ -]?test)\s+ratio\b|\bliquidity\b",
+        ("consolidated balance sheets", "current assets current liabilities cash receivables"),
+    ),
+    (
+        "margin",
+        r"\b(?:gross|operating|profit|ebitda|net)\s+margins?\b",
+        ("consolidated statements of income", "results of operations operating income revenues"),
+    ),
+    (
+        "balance",
+        r"\b(?:liabilit(?:y|ies)|balance\s+sheets?|assets?)\b",
+        ("consolidated balance sheets", "total liabilities assets"),
+    ),
+    (
+        "concentration",
+        r"\bcustomers?\b.*\bconcentrat|\bconcentrat\w*\b.*\bcustomers?",
+        ("customer accounted net revenue", "customer revenue percentage"),
+    ),
+    ("retention", r"\b(?:retain\w*|retention)\b", ("retention rate card members", "member customer retention")),
+    (
+        "tax",
+        r"\b(?:effective|income)\s+tax\s+rate\b",
+        ("effective income tax rate provision", "consolidated statements of operations income tax"),
+    ),
+    (
+        "segments",
+        r"(?=.*\b(?:revenue|revenues|sales)\b)(?=.*\b(?:products?|services?|categor\w*|segment\w*)\b)",
+        ("summary of business segment data revenues", "revenue products services segments"),
+    ),
+    (
+        "customers",
+        r"(?=.*\b(?:primary|principal|major|significant)\b)(?=.*\bcustomers?\b)",
+        ("major customers revenues", "customers significant revenues"),
+    ),
+    (
+        "cashflow",
+        r"\b(?:cash\s+flows?|ebitda|capex|depreciation|amortization)\b",
+        ("consolidated statements of cash flows", "consolidated statements of income"),
+    ),
+)
+
+
+def _financial_statement_queries(question: str) -> list[tuple[str, str]]:
+    """Retrieve source statements when a financial question names a derived metric.
+
+    Reports often contain the underlying figures but not the calculated ratio or
+    the wording used in the question. These general-purpose queries use only the
+    question; they do not depend on a document identity or annotated answers.
+    """
+
+    question = question.casefold()
+    variants: list[tuple[str, str]] = []
+
+    for label, pattern, queries in _FINANCIAL_STATEMENT_RULES:
+        if re.search(pattern, question, re.DOTALL):
+            variants.extend((f"concept-{label}-{index}", query) for index, query in enumerate(queries))
     return variants
 
 
@@ -518,19 +584,20 @@ async def search_pdf_pages(memory, question: str, limit: int = 10) -> tuple[Memo
     if not pool_by_identity:
         return ()
 
-    ranked = _rank_hits(weights, bigrams, list(pool_by_identity.values()))
+    evidence_ranked = _rank_hits(weights, bigrams, list(pool_by_identity.values()))
     # Fuse query-level retrieval with literal page evidence. The query experts
     # retain pages reached by specialized wording, while the evidence ranking
     # compares every candidate from the same union rather than unrelated batches.
-    evidence_ranks = {_hit_identity(hit): rank for rank, hit in enumerate(ranked)}
+    evidence_ranks = {_hit_identity(hit): rank for rank, hit in enumerate(evidence_ranked)}
     fused = {identity: 2.0 / (20 + rank) for identity, rank in evidence_ranks.items()}
     for label, ranking in rankings.items():
-        weight = 1.0 if label in ("original", "expanded", "synonyms") else 0.15
+        weight = 1.0 if label in ("original", "expanded", "synonyms") or label.startswith("concept-") else 0.15
         for rank, hit in enumerate(ranking):
             identity = _hit_identity(hit)
             fused[identity] = fused.get(identity, 0.0) + weight / (20 + rank)
-    ranked.sort(key=lambda hit: (-fused[_hit_identity(hit)], evidence_ranks[_hit_identity(hit)]))
-    return _interleave_citations((ranked,), limit)
+    ranked = sorted(evidence_ranked, key=lambda hit: (-fused[_hit_identity(hit)], evidence_ranks[_hit_identity(hit)]))
+    concept_rankings = [ranking for label, ranking in rankings.items() if label.startswith("concept-")]
+    return _interleave_citations((ranked, evidence_ranked, *concept_rankings), limit)
 
 
 __all__ = [
