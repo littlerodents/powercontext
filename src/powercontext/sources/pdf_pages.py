@@ -51,6 +51,10 @@ _ABBREVIATIONS = (
     (re.compile(r"\bbattles?\b", re.IGNORECASE), lambda match: ("litigation",)),
     (re.compile(r"\blawsuits?\b", re.IGNORECASE), lambda match: ("litigation",)),
     (re.compile(r"\bincome\b", re.IGNORECASE), lambda match: ("profit",)),
+    (re.compile(r"\bgeograph(?:y|ies|ic|ical)\b", re.IGNORECASE), lambda match: ("geographic", "region", "segment")),
+    (re.compile(r"\bcapex\b", re.IGNORECASE), lambda match: ("capital", "expenditure")),
+    (re.compile(r"\brevenues?\b", re.IGNORECASE), lambda match: ("sales",)),
+    (re.compile(r"\bdividends?\b", re.IGNORECASE), lambda match: ("dividend", "shareholder")),
 )
 _QUERY_STOPWORDS = frozenset({
     "a",
@@ -106,6 +110,22 @@ _QUERY_STOPWORDS = frozenset({
     "would",
     "you",
     "your",
+    "answer",
+    "assuming",
+    "calculate",
+    "define",
+    "details",
+    "give",
+    "investment",
+    "analyst",
+    "only",
+    "perspective",
+    "question",
+    "relying",
+    "respond",
+    "response",
+    "shown",
+    "use",
 })
 
 
@@ -420,6 +440,14 @@ def _search_variants(question: str, expanded: str, weights: dict[str, float]) ->
         strict=False,
     ):
         variants.append((label, variant))
+    # Long financial questions often require several different statements.
+    # Independent salient-term searches avoid requiring every evidence page to
+    # repeat all the question's terminology before it can enter the candidate pool.
+    terms = sorted(
+        (term for term in weights if not term.isdigit() and len(term) > 2),
+        key=lambda term: (-weights[term], -len(term), term),
+    )[:12]
+    variants.extend((f"term-{index}", term) for index, term in enumerate(terms))
     return variants
 
 
@@ -491,13 +519,18 @@ async def search_pdf_pages(memory, question: str, limit: int = 10) -> tuple[Memo
         return ()
 
     ranked = _rank_hits(weights, bigrams, list(pool_by_identity.values()))
-    experts = (
-        rankings.get("original", ()),
-        rankings.get("expanded", ()),
-        rankings.get("synonyms", ()),
-        ranked,
-    )
-    return _interleave_citations(experts, limit)
+    # Fuse query-level retrieval with literal page evidence. The query experts
+    # retain pages reached by specialized wording, while the evidence ranking
+    # compares every candidate from the same union rather than unrelated batches.
+    evidence_ranks = {_hit_identity(hit): rank for rank, hit in enumerate(ranked)}
+    fused = {identity: 2.0 / (20 + rank) for identity, rank in evidence_ranks.items()}
+    for label, ranking in rankings.items():
+        weight = 1.0 if label in ("original", "expanded", "synonyms") else 0.15
+        for rank, hit in enumerate(ranking):
+            identity = _hit_identity(hit)
+            fused[identity] = fused.get(identity, 0.0) + weight / (20 + rank)
+    ranked.sort(key=lambda hit: (-fused[_hit_identity(hit)], evidence_ranks[_hit_identity(hit)]))
+    return _interleave_citations((ranked,), limit)
 
 
 __all__ = [
