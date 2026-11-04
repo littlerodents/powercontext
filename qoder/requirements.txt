@@ -1,0 +1,4 @@
+flask>=3.0,<4.0
+werkzeug>=3.0,<4.0
+pylibseekdb==1.4.0.post1
+PyMySQL==1.2.0

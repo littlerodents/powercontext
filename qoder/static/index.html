@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资料回声 - 导入与检索您的学习资料</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div id="app">
+  <header class="app-header">
+    <div class="header-content">
+      <h1 class="logo">资料回声</h1>
+      <p class="tagline">导入资料，搜索知识的回响</p>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- 导入区域 -->
+    <section class="card import-section">
+      <h2>导入文件</h2>
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">📄</div>
+        <p>拖拽文件到此处，或点击选择</p>
+        <p class="upload-hint">支持 .txt .md .markdown 文件，单文件最大 10MB</p>
+        <input type="file" id="fileInput" multiple accept=".txt,.md,.markdown,.text" hidden>
+        <button class="btn btn-primary" id="selectBtn">选择文件</button>
+      </div>
+      <div id="importStatus" class="import-status" hidden></div>
+    </section>
+
+    <!-- 搜索区域 -->
+    <section class="card search-section">
+      <h2>搜索资料</h2>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="输入关键词搜索..." autocomplete="off">
+        <button class="btn btn-primary" id="searchBtn">搜索</button>
+      </div>
+      <div id="searchResults" class="search-results"></div>
+    </section>
+
+    <!-- 文档列表 -->
+    <section class="card documents-section">
+      <div class="section-header">
+        <h2>已导入资料</h2>
+        <span id="docCount" class="badge">0</span>
+      </div>
+      <div id="documentList" class="document-list">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">📚</div>
+          <p>还没有导入任何资料</p>
+          <p class="empty-hint">上传您的第一个文件开始使用</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 统计信息 -->
+    <section class="card stats-section">
+      <h2>数据库信息</h2>
+      <div id="statsInfo" class="stats-info">
+        <span>加载中...</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- 文档详情弹窗 -->
+  <div id="docModal" class="modal" hidden>
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>资料回声 &copy; 2026 | 基于 seekdb 全文检索</p>
+  </footer>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
