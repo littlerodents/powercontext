@@ -1180,6 +1180,47 @@ RECURRENCE_OBSERVATION_TABLE = Table(
 
 RECURRENCE_TABLES = (RECURRENCE_MATCH_TABLE, RECURRENCE_OBSERVATION_TABLE)
 
+LIFECYCLE_NODES_TABLE = Table(
+    "pc_lifecycle_nodes",
+    SHARED_METADATA,
+    Column("scope_id", identity_string(MAX_SCOPE_ID_LENGTH), primary_key=True),
+    Column("node_id", identity_string(MAX_SOURCE_ID_LENGTH), primary_key=True),
+    Column("ordinal", Integer, nullable=False),
+    Column("kind", String(16), nullable=False),
+    Column("available", Boolean, nullable=False),
+    Column("policy", String(8)),
+    Column("parents", _canonical_payload_type()),
+    Column("citation", _canonical_payload_type(), nullable=False),
+    Column("entry_id", identity_string(MAX_ARTIFACT_ID_LENGTH)),
+    Column("artifact_id", identity_string(MAX_ARTIFACT_ID_LENGTH)),
+    Column("revision", Integer),
+    Column("sequence", Integer),
+    ForeignKeyConstraint(("scope_id",), ("pc_scopes.scope_id",), ondelete="CASCADE"),
+    UniqueConstraint("scope_id", "ordinal", name="uq_pc_lifecycle_nodes_ordinal"),
+    CheckConstraint("kind IN ('source', 'memory', 'topic')", name="ck_pc_lifecycle_nodes_kind"),
+    CheckConstraint("ordinal > 0", name="ck_pc_lifecycle_nodes_ordinal_positive"),
+    CheckConstraint("revision IS NULL OR revision > 0", name="ck_pc_lifecycle_nodes_revision_positive"),
+    CheckConstraint("sequence IS NULL OR sequence > 0", name="ck_pc_lifecycle_nodes_sequence_positive"),
+    Index("ix_pc_lifecycle_nodes_topic", "scope_id", "kind", "artifact_id"),
+)
+
+LIFECYCLE_EVENTS_TABLE = Table(
+    "pc_lifecycle_events",
+    SHARED_METADATA,
+    Column("scope_id", identity_string(MAX_SCOPE_ID_LENGTH), primary_key=True),
+    Column("node_id", identity_string(MAX_SOURCE_ID_LENGTH), primary_key=True),
+    Column("sequence", Integer, primary_key=True),
+    Column("revision", Integer, nullable=False),
+    Column("available", Boolean, nullable=False),
+    Column("reason", _entry_text_type(), nullable=False),
+    Column("applied", Boolean, nullable=False),
+    ForeignKeyConstraint(("scope_id",), ("pc_scopes.scope_id",), ondelete="CASCADE"),
+    CheckConstraint("sequence > 0", name="ck_pc_lifecycle_events_sequence_positive"),
+    CheckConstraint("revision > 0", name="ck_pc_lifecycle_events_revision_positive"),
+)
+
+LIFECYCLE_TABLES = (LIFECYCLE_NODES_TABLE, LIFECYCLE_EVENTS_TABLE)
+
 BUILTIN_TABLES = (
     SCOPE_TABLES
     + SHARED_TABLES
@@ -1187,5 +1228,6 @@ BUILTIN_TABLES = (
     + MEMORY_TABLES
     + STATISTICS_TABLES
     + RECURRENCE_TABLES
+    + LIFECYCLE_TABLES
     + (ARTIFACT_TAGS_TABLE, DREAM_RUNS_TABLE, RECEIPT_MIGRATION_REVIEW_TABLE)
 )
