@@ -457,6 +457,25 @@ def _search_variants(question: str, expanded: str, weights: dict[str, float]) ->
 
 _FINANCIAL_STATEMENT_RULES = (
     (
+        "capital_intensity",
+        r"\bcapital[ -]+(?:intensiv\w*|expenditures?|spending|investment)\b|\bcapex\b",
+        (
+            "consolidated balance",
+            "consolidated income",
+            "consolidated operations",
+            "consolidated cash flow",
+        ),
+    ),
+    (
+        "organic_growth",
+        r"(?=.*\bsegment\w*\b)(?=.*\b(?:growth|grow\w*|declin\w*)\b)",
+        (
+            "segment organic sales growth acquisitions divestitures",
+            "business segment sales change excluding acquisitions",
+            "organic local currency sales segments",
+        ),
+    ),
+    (
         "liquidity",
         r"\b(?:quick|current|acid[ -]?test)\s+ratio\b|\bliquidity\b",
         ("consolidated balance sheets", "current assets current liabilities cash receivables"),
@@ -499,6 +518,19 @@ _FINANCIAL_STATEMENT_RULES = (
     ),
 )
 
+_STATEMENT_HEADING_PATTERNS = {
+    "concept-capital_intensity-0": re.compile(r"\bconsolidated\s+balance\s+sheets?\b", re.IGNORECASE),
+    "concept-capital_intensity-1": re.compile(
+        r"\bconsolidated\s+statements?\s+of\s+(?:income|earnings)\b", re.IGNORECASE
+    ),
+    "concept-capital_intensity-2": re.compile(
+        r"\bconsolidated\s+statements?\s+of\s+(?:operations|income|earnings)\b", re.IGNORECASE
+    ),
+    "concept-capital_intensity-3": re.compile(
+        r"\bconsolidated\s+statements?\s+of\s+cash\s+flows?\b", re.IGNORECASE
+    ),
+}
+
 
 def _financial_statement_queries(question: str) -> list[tuple[str, str]]:
     """Retrieve source statements when a financial question names a derived metric.
@@ -528,7 +560,13 @@ async def _collect_rankings(memory, variants: list[tuple[str, str]], pool_limit:
         if label in rankings:
             continue
         page = await memory.search(SearchMemoryRequest(query=variant, mode="fts", limit=pool_limit))
-        rankings[label] = list(page.hits)
+        hits = list(page.hits)
+        heading = _STATEMENT_HEADING_PATTERNS.get(label)
+        if heading is not None:
+            # Prefer the statement itself over footnotes that merely mention it.
+            # Stable sorting retains the Memory ranking within each group.
+            hits.sort(key=lambda hit: heading.search(hit.text[:1000]) is None)
+        rankings[label] = hits
     return rankings
 
 

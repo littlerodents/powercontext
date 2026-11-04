@@ -46,9 +46,12 @@ def test_financial_statement_can_be_found_without_literal_metric_name(tmp_path) 
         registry = SourceDefinitionRegistry((PDF_PAGE_SOURCE_DEFINITION,))
         texts = [
             "Consolidated Balance Sheets. Current assets: cash and cash equivalents 50; "
-            "accounts receivable 25. Total current liabilities 40.",
+            "accounts receivable 25. Total current liabilities 40. Property and equipment 200.",
             "Consolidated Statements of Income. Revenues 150. Total expenses 100.",
-            *(f"General discussion of quick ratio and operating margin, example {i}." for i in range(30)),
+            "Consolidated Statements of Cash Flows. Purchases of property, plant and equipment 30.",
+            "Business segment sales change: organic local currency sales excluding acquisitions and divestitures.",
+            *(f"General discussion of quick ratio, operating margin and a capital-intensive business, "
+              f"example {i}." for i in range(40)),
         ]
         pages = [
             PDFPageInput(document_id="synthetic-report", document_sha256="a" * 64, page_number=i, text=text)
@@ -70,15 +73,17 @@ def test_financial_statement_can_be_found_without_literal_metric_name(tmp_path) 
         async with open_builtin_runtime(config) as runtime:
             memory = runtime.memory.for_scope(scope.scope_id)
             for question, expected in (
-                ("Does the report show a healthy quick ratio?", sources[0].name),
-                ("What is the operating margin?", sources[1].name),
+                ("Does the report show a healthy quick ratio?", {sources[0].name}),
+                ("What is the operating margin?", {sources[1].name}),
+                ("Is this a capital-intensive business?", {source.name for source in sources[:3]}),
+                ("Which segment's growth excludes mergers and acquisitions?", {sources[3].name}),
             ):
                 citations = await search_pdf_pages(memory, question, limit=20)
                 found = set()
                 for citation in citations:
                     entry = (await memory.get(GetMemoryEntryRequest(citation=citation))).entry
                     found.update(source.source_id for source in entry.sources)
-                assert expected in found
+                assert expected <= found
                 assert len(citations) <= 20
 
     asyncio.run(scenario())
