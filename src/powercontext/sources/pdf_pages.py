@@ -432,6 +432,56 @@ def _hit_identity(hit: MemoryHit) -> tuple[str, int, str, str]:
     )
 
 
+def _hit_document_id(hit: MemoryHit) -> str:
+    """Read the document id from the standard PDF text projection."""
+
+    return hit.text.partition("\n")[0].strip() if "\n" in hit.text else ""
+
+
+def _question_document(question: str, rankings: dict[str, list[MemoryHit]]) -> str | None:
+    """Select a report only when the question identifies exactly one candidate document.
+
+    Report identifiers often include an entity name followed by a year and filing
+    type.  Matching is derived from the identifiers actually returned by Memory;
+    ambiguous or anonymous identifiers leave the original ranking unchanged.
+    """
+
+    documents = {_hit_document_id(hit) for hits in rankings.values() for hit in hits}
+    documents.discard("")
+    labels = {}
+    for document in documents:
+        stem = re.sub(r"[\W_]+(?:fy)?(?:19|20)\d{2}(?:[\W_].*)?$", "", document, flags=re.IGNORECASE)
+        labels[document] = "".join(re.findall(r"[a-z0-9]", stem.casefold()))
+    compact_question = "".join(re.findall(r"[a-z0-9]", question.casefold()))
+    matches = {
+        document
+        for document, label in labels.items()
+        if (len(label) >= 3 and label in compact_question)
+        or (len(label) == 2 and any(c.isdigit() for c in label)
+            and re.search(rf"(?<![a-z0-9]){re.escape(label)}(?![a-z0-9])", question.casefold()))
+    }
+    if not matches:
+        # A question may use a short all-capital abbreviation of the report's
+        # entity name. Only use a unique match, and exclude common finance terms.
+        excluded = {"EBIT", "EBITDA", "GAAP", "IFRS", "SEC", "USD", "USA", "GDP"}
+        acronyms = {word.casefold() for word in re.findall(r"\b[A-Z]{3,7}\b", question) if word not in excluded}
+        for document, label in labels.items():
+            for acronym in acronyms:
+                if len(label) < len(acronym) or label[:2] != acronym[:2]:
+                    continue
+                characters = iter(label)
+                if all(any(character == target for character in characters) for target in acronym):
+                    matches.add(document)
+                    break
+    if len(matches) > 1:
+        years = set(re.findall(r"\b(?:19|20)\d{2}\b", question))
+        years.update(f"20{year}" for year in re.findall(r"\bFY\s*['\u2019]?(\d{2})\b", question, re.IGNORECASE))
+        by_year = {document for document in matches if any(year in document for year in years)}
+        if len(by_year) == 1:
+            matches = by_year
+    return next(iter(matches)) if len(matches) == 1 else None
+
+
 def _search_variants(question: str, expanded: str, weights: dict[str, float]) -> list[tuple[str, str]]:
     variants: list[tuple[str, str]] = [("original", question), ("expanded", expanded)]
     synonym_query = _synonym_query(question)
@@ -615,6 +665,14 @@ async def search_pdf_pages(memory, question: str, limit: int = 10) -> tuple[Memo
         _search_variants(question, expanded, weights),
         pool_limit=max(limit * 10, 150),
     )
+    document = _question_document(question, rankings)
+    if document is not None:
+        # Keep the evidence within the report explicitly identified by the
+        # question; otherwise similar statements in other reports can displace it.
+        rankings = {
+            label: [hit for hit in hits if _hit_document_id(hit) == document]
+            for label, hits in rankings.items()
+        }
     pool_by_identity: dict[tuple[str, int, str, str], MemoryHit] = {}
     for ranking in rankings.values():
         for hit in ranking:
