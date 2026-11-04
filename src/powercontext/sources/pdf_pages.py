@@ -48,13 +48,13 @@ _ABBREVIATIONS = (
     (re.compile(r"\bd\s*&\s*a\b", re.IGNORECASE), lambda match: ("depreciation", "amortization")),
     (re.compile(r"\bcapex\b", re.IGNORECASE), lambda match: ("capital", "spending")),
     (re.compile(r"\bfy\s?(\d{4})\b", re.IGNORECASE), lambda match: (f"fiscal {match.group(1)}",)),
-    (re.compile(r"\bbattles?\b", re.IGNORECASE), lambda match: ("litigation",)),
-    (re.compile(r"\blawsuits?\b", re.IGNORECASE), lambda match: ("litigation",)),
+    (re.compile(r"\b(?:battles?|lawsuits?|legal)\b", re.IGNORECASE), lambda match: ("litigation", "legal", "proceedings")),
     (re.compile(r"\bincome\b", re.IGNORECASE), lambda match: ("profit",)),
     (re.compile(r"\bgeograph(?:y|ies|ic|ical)\b", re.IGNORECASE), lambda match: ("geographic", "region", "segment")),
     (re.compile(r"\bcapex\b", re.IGNORECASE), lambda match: ("capital", "expenditure")),
     (re.compile(r"\brevenues?\b", re.IGNORECASE), lambda match: ("sales",)),
     (re.compile(r"\bdividends?\b", re.IGNORECASE), lambda match: ("dividend", "shareholder")),
+    (re.compile(r"\boperates?\b", re.IGNORECASE), lambda match: ("operation", "division", "segment", "business")),
 )
 _QUERY_STOPWORDS = frozenset({
     "a",
