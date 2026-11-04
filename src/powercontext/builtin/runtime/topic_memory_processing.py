@@ -1557,7 +1557,16 @@ async def _run_topic_memory_worker(
     assignment: ArtifactProcessingWorkAssignment,
 ) -> ArtifactProcessingWorkerCompletion:
     async with _open_topic_memory_processor(spec, assignment.scope_id) as processor:
-        return await processor.process(assignment)
+        completion = await processor.process(assignment)
+        if completion.outcome is ArtifactProcessingWorkerOutcome.SUCCEEDED:
+            # The accepted wave finished its own windows; remaining journal
+            # count is re-judged from the newly committed cursor, so further
+            # sources captured during the wave can start the next wave.
+            thresholds = spec.config.runtime.source_count_thresholds()
+            if thresholds.binding_enabled(TOPIC_MEMORY_SOURCE_WINDOW_BINDING):
+                async with processor._database.transaction() as connection:
+                    await thresholds.admit_at_head(connection, assignment.scope_id)
+        return completion
 
 
 @asynccontextmanager

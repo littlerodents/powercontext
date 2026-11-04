@@ -82,6 +82,10 @@ _DISCOVERY_PAGE_DELAY_SECONDS = 0.01
 _DISCOVERY_TIMEOUT_SECONDS = 2.0
 _SPAWN_SIGTERM_GRACE_SECONDS = 1.0
 _WORKER_SHUTDOWN_TIMEOUT_SECONDS = 5.0
+# Source-count admission lives in the caller's journal transaction. A bounded
+# poll picks up accepted requests for every binding whose count trigger is
+# enabled, independent of any time schedule or explicit wake.
+_COUNT_TRIGGER_POLL_SECONDS = 0.25
 ProcessingKey = tuple[str, str]
 
 
@@ -117,6 +121,9 @@ class ArtifactProcessingBinding:
     # Only automatic admission is filtered; already accepted requests retain
     # their own Worker authorization and domain completion semantics.
     automatic_scope_filter: Callable[[AsyncConnection, tuple[str, ...]], Awaitable[frozenset[str]]] | None = None
+    # Count-triggered acceptance is written by Source journal writers; a short
+    # poll turns those durable requests into work without a time schedule.
+    count_trigger_poll_seconds: float | None = None
 
     def __post_init__(self) -> None:
         if not self.binding_name or self.binding_name != self.binding_name.strip():
@@ -131,6 +138,11 @@ class ArtifactProcessingBinding:
             raise ValueError("max_workers must be a positive integer")  # noqa: TRY003
         if self.worker_timeout_seconds <= 0:
             raise ValueError("worker_timeout_seconds must be positive")  # noqa: TRY003
+        self._validate_admission_options()
+
+    def _validate_admission_options(self) -> None:
+        if self.count_trigger_poll_seconds is not None and self.count_trigger_poll_seconds <= 0:
+            raise ValueError("count_trigger_poll_seconds must be positive")  # noqa: TRY003
         if self.automatic_processing_interval is not None:
             if self.automatic_processing_interval.total_seconds() <= 0:
                 raise ValueError("automatic interval must be positive")  # noqa: TRY003
@@ -661,7 +673,11 @@ class ArtifactProcessingSupervisor:
         capacity = self._fresh_capacity(state)
         if capacity <= 0:
             return
-        if not state.discovery_pending and self._lease_mode == "single-process":
+        if (
+            not state.discovery_pending
+            and self._lease_mode == "single-process"
+            and state.binding.count_trigger_poll_seconds is None
+        ):
             return
         if state.requested_after == 0:
             state.notification_at_start = self._notifications
@@ -1093,6 +1109,8 @@ class ArtifactProcessingSupervisor:
                 continue
             if state.next_schedule_at is not None:
                 deadlines.append(state.next_schedule_at)
+            if state.binding.count_trigger_poll_seconds is not None:
+                deadlines.append(now + state.binding.count_trigger_poll_seconds)
             if state.discovery_pending or state.scan_in_progress or not state.reconcile_complete or state.degraded:
                 deadlines.append(max(now, state.next_discovery_at))
         return None if not deadlines else max(0.001, min(deadlines) - now)

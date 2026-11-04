@@ -57,6 +57,16 @@ FAMILY_BINDINGS = {
 logger = logging.getLogger(__name__)
 
 
+async def _admit_remaining_count(contexts: RelationalContexts, config: BuiltinConfig, scope: str) -> None:
+    """Re-admit the count condition after a successful bounded window commits."""
+
+    thresholds = config.runtime.source_count_thresholds()
+    if not thresholds:
+        return
+    async with contexts.database.transaction() as connection:
+        await thresholds.admit_at_head(connection, scope)
+
+
 class FamilyWorkerSpec(BaseModel):
     """Serializable child configuration; never expose credentials through repr."""
 
@@ -210,6 +220,9 @@ async def _process_family_invocation(  # noqa: C901 - one guarded dispatch per r
                 authorize_snapshot=None if security is None else partial(security.authorize_memory, scope),
                 on_commit=None if security is None else partial(security.memory_commit, scope_id=scope),
             )
+            # One accepted window re-judges its own remainder: below the count
+            # threshold waits, at or above it accepts the next window now.
+            await _admit_remaining_count(contexts, config, scope)
             if result.held_count:
                 return ArtifactProcessingWorkerCompletion(held_count=result.held_count, hold_codes=result.hold_codes)
         elif assignment.artifact_family == "experience":
