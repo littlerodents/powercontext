@@ -1,0 +1,9 @@
+FAIL N1: min_price 参数尚未实现（预期起点）：filter_products() got an unexpected keyword argument 'min_price'. Did you mean 'max_price'?
+FAIL N2: min_price 参数尚未实现（预期起点）：filter_products() got an unexpected keyword argument 'min_price'. Did you mean 'max_price'?
+FAIL N3: min_price 参数尚未实现（预期起点）：filter_products() got an unexpected keyword argument 'min_price'. Did you mean 'max_price'?
+PASS R1
+PASS R2
+PASS R3
+PASS R4
+
+4/7 passed

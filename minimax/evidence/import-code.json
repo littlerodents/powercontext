@@ -1,0 +1,12 @@
+{
+  "scope_id": "scp_4f6k00ys5ntjkc380xmm4dxvt9",
+  "document": "filters.py",
+  "memory_ref": {
+    "family": "memory",
+    "artifact_id": "memory",
+    "revision": 2
+  },
+  "entry_id": "mem_ent_6a153eeab89d43848145e1dff2b708c9",
+  "entry_version_id": "mem_ver_3634eb8013a144a697c12e49df896d7e",
+  "version": 1
+}

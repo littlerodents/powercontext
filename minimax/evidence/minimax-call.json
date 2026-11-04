@@ -1,0 +1,17 @@
+{
+  "api_host": "https://api.qnaigc.com",
+  "request_model": "minimax/minimax-m3.1-flash",
+  "response_model": "minimax/minimax-m3.1-flash",
+  "response_id": "chatcmpl-1c7c4fd7cdac4c1485e6e6dcc8527a81",
+  "usage": {
+    "prompt_tokens": 2291,
+    "completion_tokens": 527,
+    "total_tokens": 2818,
+    "prompt_tokens_details": {},
+    "completion_tokens_details": {
+      "reasoning_tokens": 291
+    }
+  },
+  "context_items": 3,
+  "target": "minimax/examples/shopapp/shop/filters.py"
+}

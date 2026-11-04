@@ -1,0 +1,11 @@
+{
+  "scope_id": "scp_4f6k00ys5ntjkc380xmm4dxvt9",
+  "memory_ref": {
+    "family": "memory",
+    "artifact_id": "memory",
+    "revision": 5
+  },
+  "entry_id": "mem_ent_758097f3a5c24a378b9dd0014447fcb8",
+  "entry_version_id": "mem_ver_610a00d90c7b4f86ad78a0dd635f11a7",
+  "version": 1
+}

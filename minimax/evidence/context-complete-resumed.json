@@ -1,0 +1,76 @@
+{
+  "scope_id": "scp_4f6k00ys5ntjkc380xmm4dxvt9",
+  "task": "min_price filter_products",
+  "items": [
+    {
+      "kind": "test",
+      "citation": {
+        "scope_id": "scp_4f6k00ys5ntjkc380xmm4dxvt9",
+        "memory_ref": {
+          "family": "memory",
+          "artifact_id": "memory",
+          "revision": 7
+        },
+        "entry_id": "mem_ent_d5d9b2d490b0491aaa45078f0fb8db0b",
+        "entry_version_id": "mem_ver_da1fda6caa394880b9d7d3fd506c8bb4"
+      },
+      "content": "SDD_DOCUMENT test_filters.py\nPATH minimax/examples/shopapp/tests/test_filters.py\nSHA256 777e679ffc68e149591360b5ecee7e827b138199b4bdca613af336ff99b54eeb\n\"\"\"回归与新行为断言（被 run_tests.py 调用；也可直接用于 pytest）。\"\"\"\nfrom __future__ import annotations\n\nimport sys\nfrom pathlib import Path\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\nfrom shop.filters import filter_products  # noqa: E402\n\nPRODUCTS = [\n    {\"name\": \"a\", \"price\": 10},\n    {\"name\": \"b\", \"price\": 50},\n    {\"name\": \"c\", \"price\": 120},\n    {\"name\": \"d\", \"price\": None},\n]\n\n\ndef _call_min_price(**kwargs):\n    try:\n        return filter_products(PRODUCTS, **kwargs)\n    except TypeError as err:\n        raise AssertionError(f\"min_price 参数尚未实现（预期起点）：{err}\") from None\n\n\ndef n1_min_price_floor():\n    got = [p[\"name\"] for p in _call_min_price(min_price=50)]\n    assert got == [\"b\", \"c\"], f\"N1 期望 ['b','c'] 实得 {got}\"\n\n\ndef n2_min_max_intersection():\n    got = [p[\"name\"] for p in _call_min_price(min_price=20, max_price=100)]\n    assert got == [\"b\"], f\"N2 期望 ['b'] 实得 {got}\"\n\n\ndef n3_min_price_none_equivalent():\n    got = _call_min_price(min_price=None)\n    assert [p[\"name\"] for p in got] == [\"a\", \"b\", \"c\"]\n\n\ndef r1_no_args_returns_all_with_price():\n    got = filter_products(PRODUCTS)\n    assert [p[\"name\"] for p in got] == [\"a\", \"b\", \"c\"], \"R1 无参应返回全部有价格商品且顺序不变\"\n\n\ndef r2_max_price_kept():\n    got = [p[\"name\"] for p in filter_products(PRODUCTS, max_price=50)]\n    assert got == [\"a\", \"b\"], \"R2 max_price 上限语义必须保持\"\n\n\ndef r3_none_price_skipped():\n    got = filter_products(PRODUCTS, max_price=1000)\n    assert all(p[\"price\"] is not None for p in got), \"R3 缺失价格必须跳过\"\n\n\ndef r4_no_mutation_returns_new_list():\n    snapshot = [dict(p) for p in PRODUCTS]\n    got = filter_products(PRODUCTS, max_price=60)\n    assert got is not PRODUCTS, \"R4 必须返回新列表\"\n    assert PRODUCTS == snapshot, \"R4 不得修改入参\"\n\n\nCASES = [\n    (\"N1\", n1_min_price_floor),\n    (\"N2\", n2_min_max_intersection),\n    (\"N3\", n3_min_price_none_equivalent),\n    (\"R1\", r1_no_args_returns_all_with_price),\n    (\"R2\", r2_max_price_kept),\n    (\"R3\", r3_none_price_skipped),\n    (\"R4\", r4_no_mutation_returns_new_list),\n]",
+      "matched_by": [
+        "fts"
+      ]
+    },
+    {
+      "kind": "code",
+      "citation": {
+        "scope_id": "scp_4f6k00ys5ntjkc380xmm4dxvt9",
+        "memory_ref": {
+          "family": "memory",
+          "artifact_id": "memory",
+          "revision": 7
+        },
+        "entry_id": "mem_ent_6a153eeab89d43848145e1dff2b708c9",
+        "entry_version_id": "mem_ver_8f64902a3bc14da7814dc57b9a2eca02"
+      },
+      "content": "SDD_DOCUMENT filters.py\nPATH minimax/examples/shopapp/shop/filters.py\nSHA256 a6ee8b555b066352e889af0fae2890fb96a144b06a512f1343d4df08be24af7b\n\"\"\"示例业务工程：商品筛选（SDD 验证样例的修改目标）。\"\"\"\nfrom __future__ import annotations\n\nfrom typing import Any\n\n\ndef filter_products(\n    products: list[dict[str, Any]],\n    *,\n    max_price: float | None = None,\n    min_price: float | None = None,\n) -> list[dict[str, Any]]:\n    \"\"\"按 SPEC-SHOP-001 v2 实现价格区间筛选。\n\n    支持可选的价格上限和下限；缺失价格跳过；返回新列表并保持原顺序。\n    \"\"\"\n    result: list[dict[str, Any]] = []\n    for p in products:\n        price = p.get(\"price\")\n        if price is None:\n            continue\n        if max_price is not None and price > max_price:\n            continue\n        if min_price is not None and price < min_price:\n            continue\n        result.append(dict(p))\n    return result",
+      "matched_by": [
+        "fts"
+      ]
+    },
+    {
+      "kind": "spec",
+      "citation": {
+        "scope_id": "scp_4f6k00ys5ntjkc380xmm4dxvt9",
+        "memory_ref": {
+          "family": "memory",
+          "artifact_id": "memory",
+          "revision": 7
+        },
+        "entry_id": "mem_ent_4bb433c4737b4d8cafc44623b3cb073c",
+        "entry_version_id": "mem_ver_ac767573a78e44aa942802b69ec0ff71"
+      },
+      "content": "SDD_DOCUMENT SPEC-SHOP-001\nPATH minimax/examples/specs/SPEC-SHOP-001.v2.md\nSHA256 fe1f9e1b94abf6403213d19e6867390277cbe2ea9cfd1cb4c7f5d76456a9e101\n# SPEC-SHOP-001 v2：商品筛选规格\n\n状态：当前有效。相对 v1 的变更：新增 S-2b 最低价格下限。\n\n## S-1 筛选入口\n\n`shop/filters.py::filter_products(products, *, max_price=None, min_price=None)` 提供唯一筛选入口。\n\n## S-2 价格上限（沿用 v1）\n\n当提供 `max_price` 时，仅保留 `price <= max_price` 的商品。\n\n## S-2b 价格下限（v2 新增）\n\n当提供 `min_price` 时，仅保留 `price >= min_price` 的商品；与 `max_price` 同时给出时按交集过滤。`min_price=None` 与不传等价。\n\n## S-3 缺失价格（沿用 v1）\n\n`price is None` 的商品一律跳过，不参与任何筛选结果。\n\n## S-4 无副作用（沿用 v1）\n\n筛选返回新列表，不得修改入参 `products`，保留原顺序。",
+      "matched_by": [
+        "fts"
+      ]
+    }
+  ],
+  "saved_state": {
+    "checks": {
+      "after_change": "7/7 passed: N1-N3 and R1-R4",
+      "baseline": "4/7 passed: R1-R4 passed, N1-N3 failed",
+      "model_call": "minimax/minimax-m3.1-flash completed the modification",
+      "specification_update": "v2 retrieved from the same entry identity at version 2"
+    },
+    "completed": [
+      "Imported versioned specification, code and tests into seekdb through the PowerContext SDK",
+      "Retrieved all three document kinds via seekdb full-text search",
+      "Updated SPEC-SHOP-001 from v1 to v2 under the same identity",
+      "Provided retrieved context to MiniMax and applied its code modification",
+      "Ran all seven functional and regression checks successfully"
+    ],
+    "objective": "Implement SPEC-SHOP-001 v2 inclusive min_price filtering with MiniMax",
+    "pending": [
+      "Submit the repository commit for official evaluation"
+    ]
+  }
+}

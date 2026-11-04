@@ -1,0 +1,12 @@
+{
+  "scope_id": "scp_4f6k00ys5ntjkc380xmm4dxvt9",
+  "document": "SPEC-SHOP-001",
+  "memory_ref": {
+    "family": "memory",
+    "artifact_id": "memory",
+    "revision": 4
+  },
+  "entry_id": "mem_ent_4bb433c4737b4d8cafc44623b3cb073c",
+  "entry_version_id": "mem_ver_ac767573a78e44aa942802b69ec0ff71",
+  "version": 2
+}

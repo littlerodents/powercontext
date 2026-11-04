@@ -1,0 +1,18 @@
+--- a/minimax/examples/shopapp/shop/filters.py
++++ b/minimax/examples/shopapp/shop/filters.py
+@@ -7,2 +7,7 @@
+-def filter_products(products: list[dict[str, Any]], *, max_price: float | None = None) -> list[dict[str, Any]]:
+-    """按 SPEC-SHOP-001 v1 实现：max_price 上限；缺失价格跳过；返回新列表。
++def filter_products(
++    products: list[dict[str, Any]],
++    *,
++    max_price: float | None = None,
++    min_price: float | None = None,
++) -> list[dict[str, Any]]:
++    """按 SPEC-SHOP-001 v2 实现价格区间筛选。
+@@ -10 +15 @@
+-    v2 任务（由 MiniMax 完成）：增加 min_price 下限，保持 R1–R4 回归行为。
++    支持可选的价格上限和下限；缺失价格跳过；返回新列表并保持原顺序。
+@@ -18,0 +24,2 @@
++        if min_price is not None and price < min_price:
++            continue
