@@ -126,7 +126,7 @@ python3 -m venv .venv
 
 ## 开发记录与实际演示
 
-[Qoder 开发记录](QODER_DEVELOPMENT.md) · [真实搜索截图](assets/search-demo.jpg)
+[Qoder 开发记录](QODER_DEVELOPMENT.md) · [真实搜索截图](assets/search-demo.jpg) · [Qoder Sites 展示网站](https://material-echo-oceanbase-gh24k60h61r.qoder.zone/)
 
 ## 自动化测试
 

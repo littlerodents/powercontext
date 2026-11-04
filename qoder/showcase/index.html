@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资料回声 - 本地资料全文检索工具</title>
+<meta name="description" content="帮助学生和研究者导入本地资料，使用 seekdb 全文索引搜索并回查来源的开源工具">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="container">
+    <h1 class="logo">资料回声</h1>
+    <p class="tagline">导入您的资料，搜索知识的回响</p>
+    <p class="description">一个帮助学生和研究者管理本地文档的开源工具</p>
+    <div class="cta-group">
+      <a href="https://github.com/littlerodents/powercontext/tree/solution/ecosystem-qoder/qoder" class="btn btn-primary" target="_blank" rel="noopener">GitHub 仓库</a>
+      <a href="#features" class="btn btn-secondary">了解功能</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="features" class="section">
+    <div class="container">
+      <h2>核心功能</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📄</div>
+          <h3>文件导入</h3>
+          <p>支持拖拽或选择 .txt / .md 文件，自动提取标题，基于内容 SHA-256 哈希去重</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3>全文检索</h3>
+          <p>基于 seekdb 的 MATCH AGAINST 全文搜索，使用 ngram parser 支持中文分词</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔗</div>
+          <h3>来源回查</h3>
+          <p>每条搜索结果展示文档标题和原始文件名，点击可查看完整内容</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💾</div>
+          <h3>数据持久化</h3>
+          <p>数据保存在本地 seekdb 数据库，程序重启后数据仍在，支持跨进程访问</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>线程安全</h3>
+          <p>每个 Flask 线程使用独立 PyMySQL 连接，并发导入相同内容正确去重</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>响应式界面</h3>
+          <p>适配桌面和移动端，所有用户输入安全转义防止 XSS 攻击</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <h2>技术架构</h2>
+      <div class="tech-stack">
+        <div class="tech-item">
+          <span class="tech-label">数据库引擎</span>
+          <span class="tech-value">pylibseekdb 1.4.0.post1</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-label">SQL 接口</span>
+          <span class="tech-value">PyMySQL 1.2.0</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-label">全文索引</span>
+          <span class="tech-value">FULLTEXT INDEX + ngram</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-label">Web 框架</span>
+          <span class="tech-value">Flask 3.0+</span>
+        </div>
+        <div class="tech-item">
+          <span class="tech-label">前端</span>
+          <span class="tech-value">原生 HTML/CSS/JS</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>项目截图</h2>
+      <div class="screenshot-container">
+        <img src="assets/search-demo.jpg" alt="资料回声搜索界面截图" class="screenshot" loading="lazy">
+        <p class="screenshot-caption">浏览器实测：导入示例文档后搜索"关系代数"，返回带高亮摘要的结果</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <h2>测试验证</h2>
+      <div class="test-results">
+        <div class="test-card">
+          <div class="test-icon">✅</div>
+          <div class="test-info">
+            <h3>单元测试</h3>
+            <p class="test-file">test_echo.py</p>
+            <div class="test-stats">
+              <span class="test-passed">44/44 通过</span>
+            </div>
+            <p class="test-desc">覆盖导入、去重、检索、持久化、并发、跨进程等真实 seekdb 操作</p>
+          </div>
+        </div>
+        <div class="test-card">
+          <div class="test-icon">✅</div>
+          <div class="test-info">
+            <h3>集成验证</h3>
+            <p class="test-file">test_integration.py</p>
+            <div class="test-stats">
+              <span class="test-passed">32/32 通过</span>
+            </div>
+            <p class="test-desc">完整生命周期测试，含跨进程子进程读写验证</p>
+          </div>
+        </div>
+      </div>
+      <div class="test-notes">
+        <h3>已验证功能</h3>
+        <ul>
+          <li>中文全文检索（ngram 分词）</li>
+          <li>并发导入相同内容的去重（1 imported + 9 duplicate）</li>
+          <li>弹窗显示/关闭（× 按钮和背景点击）</li>
+          <li>数据持久化（关闭后重新打开数据仍在）</li>
+          <li>跨进程数据可见性</li>
+          <li>线程安全（无 Packet sequence number wrong 错误）</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>本地运行</h2>
+      <div class="notice">
+        <strong>重要说明：</strong>资料回声是一个<strong>本地运行工具</strong>，需要在您自己的电脑上启动服务。本展示网站仅作项目介绍，不提供在线上传或搜索功能。
+      </div>
+      <div class="code-block">
+        <h3>快速启动</h3>
+        <pre><code># 1. 克隆仓库
+git clone --branch solution/ecosystem-qoder --single-branch https://github.com/littlerodents/powercontext.git
+cd powercontext/qoder
+
+# 2. 安装依赖
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+
+# 3. 启动服务
+.venv/bin/python app.py
+
+# 4. 访问 http://127.0.0.1:5000</code></pre>
+      </div>
+      <div class="code-block">
+        <h3>运行测试</h3>
+        <pre><code># 单元测试（44 个测试用例）
+.venv/bin/python test_echo.py
+
+# 集成验证（32 个检查点）
+.venv/bin/python test_integration.py</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <h2>设计亮点</h2>
+      <div class="highlights">
+        <div class="highlight-item">
+          <h3>🔐 真实数据库检索</h3>
+          <p>所有搜索操作通过 seekdb 的 MATCH AGAINST SQL 完成，不使用内存列表伪造检索结果</p>
+        </div>
+        <div class="highlight-item">
+          <h3>⚡ 并发去重</h3>
+          <p>多线程同时导入相同内容时，数据库 UNIQUE 约束保证原子性，一个 imported，其余 duplicate</p>
+        </div>
+        <div class="highlight-item">
+          <h3>🛡️ 安全防护</h3>
+          <p>SQL 参数化防注入，前端 escapeHtml 防 XSS，文件名处理防目录遍历</p>
+        </div>
+        <div class="highlight-item">
+          <h3>📦 本地数据保存</h3>
+          <p>数据完全保存在本地，不上传到任何服务器，保护用户隐私</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p>资料回声 &copy; 2026 | OceanBase 大赛参赛作品</p>
+    <p class="footer-links">
+      <a href="https://github.com/littlerodents/powercontext/tree/solution/ecosystem-qoder/qoder" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </div>
+</footer>
+</body>
+</html>

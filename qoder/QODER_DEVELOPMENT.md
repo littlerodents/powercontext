@@ -32,3 +32,9 @@
 - 执行 `test_integration.py`：32/32 通过，含真实 seekdb 的导入、检索、持久化和跨进程读取。
 - Chrome 使用自带示例完成文件导入、中文搜索及点击来源回查；另验证弹窗初始隐藏、打开后显示、关闭后不再遮挡。
 - 实测截图：`assets/search-demo.jpg`。以上测试由集成验证者实际执行；不将其误称为 Qoder 已执行的测试。
+
+## Qoder Sites 发布
+
+- Qoder 会话生成 `showcase/` 的展示页并通过 Qoder Sites 发布；网站向所有人开放。
+- 公共展示地址：https://material-echo-oceanbase-gh24k60h61r.qoder.zone/
+- 未登录访问已核验；展示页明确说明项目需在本地运行。
