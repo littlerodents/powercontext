@@ -27,9 +27,13 @@ request_body = {
     "temperature": 0.1,
     "max_tokens": 4000,
 }
+_ALLOWED_HOSTS = {"api.minimax.io", "api.qnaigc.com"}
 base = os.environ.get("MINIMAX_API_HOST", "https://api.minimax.io").rstrip("/")
 if not base.startswith("https://"):
     base = "https://" + base
+import urllib.parse as _up
+if _up.urlsplit(base).hostname not in _ALLOWED_HOSTS:
+    raise SystemExit("MINIMAX_API_HOST not in allowlist: " + str(_up.urlsplit(base).hostname))
 url = base + "/v1/chat/completions"
 request = Request(url, data=json.dumps(request_body).encode(), headers={"Authorization": "Bearer " + os.environ["MINIMAX_API_KEY"], "Content-Type": "application/json"})
 try:

@@ -1,62 +1,71 @@
 # 时光胶囊伙伴 · PowerContext 记忆版（Dify × PowerContext）
 
-一个"记得你"的跨会话伙伴：每轮对话先从 PowerContext 召回你留下的记忆，再个性化回应，最后把本轮内容写回 PowerContext。开新会话它依然记得；支持"给未来：……"的信件玩法。
+一个"记得你"的跨会话记忆伙伴📦：每轮对话先从 PowerContext 召回你留下的记忆，个性化回应后再把本轮内容写回。开新会话依然记得；**不同 user_id 互相隔离**；支持"给未来：……"的信件玩法。
 
-## 交付物
+## 交付物（同源两包）
 
 | 文件 | 说明 |
 |---|---|
-| `powercontext-memory-chatflow.yml` | Chatflow DSL（Dify 1.x，已在本机 Dify 1.19.0 连续 6 次导入成功并全流程跑通） |
-| `capsule-partner.ifpkg` | Dify 1.19 官方导出的一键导入包（zip：manifest.yaml + app.yaml），双保险 |
-| `validation-cases.md` | 验证样例（含 2026-11-05 真机运行记录） |
+| `powercontext-memory-chatflow.yml` | Chatflow DSL（14 节点；从 Dify 1.19.0 导入成功，也是 ifpkg 的源） |
+| `capsule-partner.ifpkg` | Dify 官方导出的一键导入包（manifest.yaml + app.yaml，与 yml 同源导出） |
+| `evidence/` | **机器生成的运行证据**（非自述）：SSE 原始流、节点级 run 摘要、跨会话与隔离验证、PowerContext 侧数据 |
+| `README.md` / `validation-cases.md` | 本文件（含 5 分钟复跑手册）与验证样例 |
 
-## 编排结构（Dify 承担核心流程编排）
+## 编排结构（Dify 承担核心流程编排；变量派生全部在 Code 节点内完成）
 
 ```
-开始(sys.query)
- → HTTP 召回  POST {PC}/v1/memory/search        （检索/工具调用）
- → Code 提取   hits 条数 + 记忆文本（解析失败按 0 条，防呆）
- → IF 机械分支  hit_count > 0                    （条件判断，不经 LLM）
-     ├─ 否 → LLM 初次见面（邀请留记忆 / 写给未来的信）
-     └─ 是 → LLM 带记忆回应（"我还记得你说过……"）
- → Code 清洗   剥离 <think> 思考标签
- → Answer 输出
- → HTTP 写回  POST {PC}/v1/memory/remember       （回复后落库，失败不影响回复）
+开始(user_id 输入, 默认 demo-user)
+ → Code  派生隔离 scope + json.dumps 构造 ensure/remember 请求体   ← 杜绝 sys.query 原文注入 JSON
+ → HTTP  POST /v1/scopes   幂等确保 scope（default-value 降级）
+ → Code  解析服务端 scope_id，生成 recall/remember 请求体
+ → HTTP  POST /v1/memory/search   召回（fts 自动，无 embedding 依赖；default-value 失败降级）
+ → Code  机械提取命中条数（解析失败按 0 条）
+ → IF    hit_count > 0                     ← 条件判断不经 LLM
+     ├─ 否 → LLM 初次见面 → Code 清洗 → Answer
+     └─ 是 → LLM 带记忆回应 → Code 清洗 → Answer
+ → HTTP  POST /v1/memory/remember  事后写回（失败不影响回复；default-value 降级）
 ```
 
-- **检索零 embedding 依赖**：`/v1/memory/search` 的 `mode:"auto"` 在无向量模型时自动走 `fts`（真机验证，命中 `matched_by:["fts"]`）。
-- **跨会话身份**：记忆挂在固定的 PowerContext Scope（环境变量 `powercontext_scope`），与 Dify 会话 ID 解耦——这是"新会话还记得"的关键。
-- **凭据不入 DSL**：导入后自行在「设置 → 模型供应商」填 API Key。
+## 运行证据（evidence/，全部带 conversation_id / run_id 可追溯）
 
-## 运行说明（评审复现路径）
+| 文件 | 内容 |
+|---|---|
+| `01-sse-sessionA-first-meeting.sse.txt` | 会话 A 原始 SSE 事件流（11 节点全部 succeeded） |
+| `02-sse-sessionB-cross-session-memory.sse.txt` | 会话 B 原始 SSE（新 conversation，召回命中） |
+| `03-run-summary-sessionA.json` | A 的节点级摘要：hits=0 → 初次分支，answer 落袋 |
+| `04-run-summary-sessionB.json` | B 的节点级摘要：hits=1 → "当然记得！你说过最喜欢的水果是榴莲……" |
+| `05-powercontext-rows.txt` | PowerContext 侧直接 curl 的 scopes 与 memory/search 原始响应 |
+| `06-isolation-other-user.json` | 隔离验证：other-user hits=0 → "咱们才第一次见呀"（用户隔离实证） |
 
-1. **起 PowerContext**（需 Python 3.12 + uv）：
+## 5 分钟复跑手册（评审路径）
+
+前置：Docker；Python 3.12 + [uv](https://docs.astral.sh/uv/)。
+
+1. **起 PowerContext**（本仓库即 oceanbase/powercontext 的 ecosystem 分支）：
    ```bash
-   export POWERCONTEXT_SERVER_AUTH_TOKEN=<32+ 位随机串>
-   uv venv .venv && uv pip install -e "<powercontext 仓库路径>[server,cli,builtin]"
-   .venv/bin/powercontext server run --host 0.0.0.0 --port 8000 --no-env-file
+   git clone -b 2026-competition-ecosystem https://github.com/littlerodents/powercontext.git pc
+   cd pc && uv venv .venv && uv pip install -e ".[server,cli,builtin]"
+   export POWERCONTEXT_SERVER_AUTH_TOKEN=$(openssl rand -hex 24)
+   .venv/bin/powercontext server run --host 0.0.0.0 --port 8000 --no-env-file &
    ```
-   容器内访问宿主机需 `--host 0.0.0.0` + Bearer Token。
-2. **建 Scope**（一次性）：
+2. **起 Dify**（自托管 1.19.0；Docker Desktop 下 `host.docker.internal` 直通宿主机）：
    ```bash
-   curl -X POST http://127.0.0.1:8000/v1/scopes -H "Authorization: Bearer $TOKEN" \
-     -H 'Content-Type: application/json' \
-     -d '{"title":"Dify Capsule Partner","summary":"时光胶囊伙伴记忆","idempotency_key":"capsule-fixed"}'
+   git clone --depth 1 --filter=blob:none --sparse https://github.com/langgenius/dify.git
+   cd dify && git sparse-checkout set docker && cd docker
+   cp .env.example .env
+   printf '\nEXPOSE_NGINX_PORT=8181\nSSRF_PROXY_ALLOW_PRIVATE_IPS=192.168.65.0/24,127.0.0.1,localhost,host.docker.internal\n' >> .env
+   docker compose up -d
    ```
-   记下返回的 `scope_id`。
-3. **导入 DSL**：Dify「工作室 → 创建 → 导入 DSL」选 `powercontext-memory-chatflow.yml`；或直接导入 `capsule-partner.ifpkg`。
-4. **配模型**：「设置 → 模型供应商 → 深度求索」填 API Key（本验证用 DeepSeek `deepseek-flash`；任何对话模型均可）。
-5. **改环境变量**（应用「编排 → 环境变量」）：
-   - `powercontext_url` = `http://host.docker.internal:8000`（Dify 为 Docker 部署时；本机进程直跑用 `http://127.0.0.1:8000`）
-   - `powercontext_scope` = 第 2 步的 `scope_id`
-   - `powercontext_token` = 第 1 步的 Token（未启用鉴权可留空）
-6. **Dify 自托管注意事项（真机踩坑记录）**：Docker 部署需在 `.env` 增加
-   `SSRF_PROXY_ALLOW_PRIVATE_IPS=192.168.65.0/24,127.0.0.1,localhost,host.docker.internal`
-   后 `docker compose up -d ssrf_proxy`，否则 HTTP 节点访问宿主机会被 SSRF 防护拦截。
+   注意：`SSRF_PROXY_ALLOW_PRIVATE_IPS` 必须加，否则 HTTP 节点访问宿主机 PowerContext 被 SSRF 防护拦截。
+3. **初始化**：浏览器打开 `http://127.0.0.1:8181/install` 建管理员 → 登录 → Marketplace 安装 DeepSeek 插件 → 填 API Key。
+4. **导入**：工作室 → 创建 → 导入 DSL → 选 `powercontext-memory-chatflow.yml`（或直接导入 `capsule-partner.ifpkg`）。
+5. **配环境变量**（编排 → 环境变量）：
+   - `powercontext_url` = `http://host.docker.internal:8000`
+   - `powercontext_scope` = `dify-capsule`（前缀；实际 scope = `dify-capsule-<user_id>`，按用户隔离）
+   - `powercontext_token` = 第 1 步的 TOKEN（secret）
+6. **体验**：调试/发布后对话。先说"记住：我最喜欢的水果是榴莲"，再**开新会话**问"我之前跟你说过什么？"——它会记得。换一个 `user_id` 输入再问——看不到前者的记忆。
 
-## 玩法
+## 已知边界（如实说明）
 
-- 直接聊天，说出偏好/约定（"记住：……"），新会话再问"我之前说过什么"。
-- 写信：`给未来：……`；之后任何会话说"读读我写的信"。
-
-真机验证结果见 `validation-cases.md`（2026-11-05，Dify 1.19.0 + DeepSeek flash + PowerContext 1.2.0）。
+- DeepSeek 思考链偶尔泄漏原始文本：已加 Code 清洗节点机械剥离 `<think>` 段。
+- scope 幂等键冲突（同键不同 title）时 ensure 返回 409：走 default-value 降级路径，后续以派生名调用（评测新环境无此污染，正常路径为 201/幂等 200）。

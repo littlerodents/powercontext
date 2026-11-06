@@ -1,0 +1,162 @@
+{
+ "purpose": "会话B（judge-demo 新会话）：应召回 A 写入的记忆并据此回答",
+ "conversation_id": "3681933c-8a1f-49cd-bccb-85f1102ac249",
+ "workflow_run_id": "cd07b912-6c4a-42af-9013-7346c984053f",
+ "hit_count": 1,
+ "branch_took_memory_path": true,
+ "final_answer": "当然记得！你说过最喜欢的水果是榴莲，梦想是去冰岛看极光。🌌 这两个我都替你好好收着呢。最近有没有吃到好吃的榴莲，或者开始攒去看极光的旅费啦？",
+ "node_count": 11,
+ "all_nodes_succeeded": true,
+ "nodes": [
+  {
+   "title": "开始",
+   "status": "succeeded",
+   "elapsed_ms": 0.2,
+   "outputs": {
+    "user_id": "judge-demo"
+   }
+  },
+  {
+   "title": "派生隔离Scope与请求体",
+   "status": "succeeded",
+   "elapsed_ms": 101.2,
+   "outputs": {
+    "derived_scope": "dify-capsule-judge-demo",
+    "ensure_body": "{\"title\": \"Dify Capsule Partner\", \"summary\": \"capsule memories\", \"idempotency_key\": \"ensure-dify-capsule-judge-demo\"}",
+    "remember_body": "{\"kind\": \"capsule_log\", \"text\": \"[用户] 新会话提问：我之前跟你说过我最喜欢什么水果？我的梦想是什么？\", \"reason\": \"Dify capsule auto-memory\"}",
+    "uid": "judge-demo"
+   }
+  },
+  {
+   "title": "确保Scope存在",
+   "status": "succeeded",
+   "elapsed_ms": 38.4,
+   "outputs": {
+    "status_code": 201,
+    "body": "{\"scope_id\":\"scp_3y3prq61zm7q1wt0nzcvh2v73c\",\"title\":\"Dify Capsule Partner\",\"summary\":\"capsule memories\",\"parent_scope_id\":null,\"context_references\":[],\"external_references\":[],\"version\":1}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "189",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:35 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "a2b0ce5d616c0869"
+    },
+    "files": []
+   }
+  },
+  {
+   "title": "解析Scope并构造请求体",
+   "status": "succeeded",
+   "elapsed_ms": 36.9,
+   "outputs": {
+    "scope_id": "scp_3y3prq61zm7q1wt0nzcvh2v73c",
+    "recall_body": "{\"scope_id\": \"scp_3y3prq61zm7q1wt0nzcvh2v73c\", \"query\": \"新会话提问：我之前跟你说过我最喜欢什么水果？我的梦想是什么？\", \"limit\": 5}",
+    "remember_body": "{\"scope_id\": \"scp_3y3prq61zm7q1wt0nzcvh2v73c\", \"kind\": \"capsule_log\", \"text\": \"[用户] 新会话提问：我之前跟你说过我最喜欢什么水果？我的梦想是什么？\", \"reason\": \"Dify capsule auto-memory\"}"
+   }
+  },
+  {
+   "title": "召回 PowerContext 记忆",
+   "status": "succeeded",
+   "elapsed_ms": 35.1,
+   "outputs": {
+    "status_code": 200,
+    "body": "{\"memory\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":1},\"mode\":\"fts\",\"hits\":[{\"citation\":{\"memory_ref\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":1},\"entry_id\":\"mem_ent_2804fbd9178f4d44a8913867a1d11f67\",\"entry_version_id\":\"mem_ver_637ec25126014a92bd6de22ee04a75a3\"},\"text\":\"[用户] 记住：我最喜欢的水果是榴莲，梦想去冰岛看极光\",\"score\":0.01639344262295082,\"matched_by\":[\"fts\"]}]}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "422",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:35 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "99e2f6cc37c4c8b4"
+    },
+    "files": []
+   }
+  },
+  {
+   "title": "提取记忆命中",
+   "status": "succeeded",
+   "elapsed_ms": 35.0,
+   "outputs": {
+    "hit_count": 1,
+    "memory_texts": "- [用户] 记住：我最喜欢的水果是榴莲，梦想去冰岛看极光"
+   }
+  },
+  {
+   "title": "是否有历史记忆",
+   "status": "succeeded",
+   "elapsed_ms": 0.1,
+   "outputs": {
+    "result": true,
+    "selected_case_id": "true"
+   }
+  },
+  {
+   "title": "带记忆回复",
+   "status": "succeeded",
+   "elapsed_ms": 1475.2,
+   "outputs": {
+    "text": "<think>\n<!--dify-deepseek-reasoning-->用户问水果和梦想。记忆里有：榴莲、冰岛看极光。自然回应，不超120字。\n</think>当然记得！你说过最喜欢的水果是榴莲，梦想是去冰岛看极光。🌌 这两个我都替你好好收着呢。最近有没有吃到好吃的榴莲，或者开始攒去看极光的旅费啦？",
+    "reasoning_content": "",
+    "usage": {
+     "completion_price": "0",
+     "completion_price_unit": "0",
+     "completion_tokens": 74,
+     "completion_unit_price": "0",
+     "currency": "USD",
+     "latency": 1.465,
+     "prompt_price": "0",
+     "prompt_price_unit": "0",
+     "prompt_tokens": 200,
+     "prompt_unit_price": "0",
+     "time_to_first_token": 1.003,
+     "time_to_generate": 0.462,
+     "total_price": "0",
+     "total_tokens": 274
+    },
+    "finish_reason": "stop"
+   }
+  },
+  {
+   "title": "清洗回复（带记忆）",
+   "status": "succeeded",
+   "elapsed_ms": 38.1,
+   "outputs": {
+    "text": "当然记得！你说过最喜欢的水果是榴莲，梦想是去冰岛看极光。🌌 这两个我都替你好好收着呢。最近有没有吃到好吃的榴莲，或者开始攒去看极光的旅费啦？"
+   }
+  },
+  {
+   "title": "回复（带记忆）",
+   "status": "succeeded",
+   "elapsed_ms": 0.1,
+   "outputs": {
+    "answer": "当然记得！你说过最喜欢的水果是榴莲，梦想是去冰岛看极光。🌌 这两个我都替你好好收着呢。最近有没有吃到好吃的榴莲，或者开始攒去看极光的旅费啦？",
+    "files": []
+   }
+  },
+  {
+   "title": "写回 PowerContext 记忆",
+   "status": "succeeded",
+   "elapsed_ms": 32.9,
+   "outputs": {
+    "status_code": 200,
+    "body": "{\"memory\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":2},\"entry\":{\"citation\":{\"memory_ref\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":2},\"entry_id\":\"mem_ent_fa1ac4bc657e4f929607044df39d54e0\",\"entry_version_id\":\"mem_ver_b4a8f5f05dce4257b3b85f047d141144\"},\"version\":1,\"kind\":\"capsule_log\",\"text\":\"[用户] 新会话提问：我之前跟你说过我最喜欢什么水果？我的梦想是什么？\",\"state\":\"active\",\"source_refs\":[],\"artifact_refs\":[]}}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "469",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:36 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "ebfdffd8abd30b35"
+    },
+    "files": []
+   }
+  }
+ ]
+}

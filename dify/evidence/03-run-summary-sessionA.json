@@ -1,0 +1,162 @@
+{
+ "purpose": "会话A（judge-demo 首条消息）：写记忆 + 初次/带记忆分支正常回复",
+ "conversation_id": "b6bc1fc2-f5d9-4579-bd36-37f314873165",
+ "workflow_run_id": "28f81950-b98d-4bd1-9bfe-78f8168dfef0",
+ "hit_count": 0,
+ "branch_took_memory_path": false,
+ "final_answer": "叮！榴莲和小极光已存档📦 要是下次我忘了，罚我闻一整天榴莲～ 要不要再写封“给未来：……”的信？我替你保管，下次见面原样读给你听。",
+ "node_count": 11,
+ "all_nodes_succeeded": true,
+ "nodes": [
+  {
+   "title": "开始",
+   "status": "succeeded",
+   "elapsed_ms": 0.2,
+   "outputs": {
+    "user_id": "judge-demo"
+   }
+  },
+  {
+   "title": "派生隔离Scope与请求体",
+   "status": "succeeded",
+   "elapsed_ms": 90.1,
+   "outputs": {
+    "derived_scope": "dify-capsule-judge-demo",
+    "ensure_body": "{\"title\": \"Dify Capsule Partner\", \"summary\": \"capsule memories\", \"idempotency_key\": \"ensure-dify-capsule-judge-demo\"}",
+    "remember_body": "{\"kind\": \"capsule_log\", \"text\": \"[用户] 记住：我最喜欢的水果是榴莲，梦想去冰岛看极光\", \"reason\": \"Dify capsule auto-memory\"}",
+    "uid": "judge-demo"
+   }
+  },
+  {
+   "title": "确保Scope存在",
+   "status": "succeeded",
+   "elapsed_ms": 62.2,
+   "outputs": {
+    "status_code": 201,
+    "body": "{\"scope_id\":\"scp_3y3prq61zm7q1wt0nzcvh2v73c\",\"title\":\"Dify Capsule Partner\",\"summary\":\"capsule memories\",\"parent_scope_id\":null,\"context_references\":[],\"external_references\":[],\"version\":1}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "189",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:24 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "7d0dff4ea13d3d31"
+    },
+    "files": []
+   }
+  },
+  {
+   "title": "解析Scope并构造请求体",
+   "status": "succeeded",
+   "elapsed_ms": 44.7,
+   "outputs": {
+    "scope_id": "scp_3y3prq61zm7q1wt0nzcvh2v73c",
+    "recall_body": "{\"scope_id\": \"scp_3y3prq61zm7q1wt0nzcvh2v73c\", \"query\": \"记住：我最喜欢的水果是榴莲，梦想去冰岛看极光\", \"limit\": 5}",
+    "remember_body": "{\"scope_id\": \"scp_3y3prq61zm7q1wt0nzcvh2v73c\", \"kind\": \"capsule_log\", \"text\": \"[用户] 记住：我最喜欢的水果是榴莲，梦想去冰岛看极光\", \"reason\": \"Dify capsule auto-memory\"}"
+   }
+  },
+  {
+   "title": "召回 PowerContext 记忆",
+   "status": "succeeded",
+   "elapsed_ms": 39.2,
+   "outputs": {
+    "status_code": 200,
+    "body": "{\"memory\":null,\"mode\":null,\"hits\":[]}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "37",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:24 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "831ed20d6180f278"
+    },
+    "files": []
+   }
+  },
+  {
+   "title": "提取记忆命中",
+   "status": "succeeded",
+   "elapsed_ms": 40.4,
+   "outputs": {
+    "hit_count": 0,
+    "memory_texts": ""
+   }
+  },
+  {
+   "title": "是否有历史记忆",
+   "status": "succeeded",
+   "elapsed_ms": 0.5,
+   "outputs": {
+    "result": false,
+    "selected_case_id": "false"
+   }
+  },
+  {
+   "title": "初次见面回复",
+   "status": "succeeded",
+   "elapsed_ms": 1982.6,
+   "outputs": {
+    "text": "<think>\n<!--dify-deepseek-reasoning-->用户是初次见面，要求记住两件事。回复不超过100字，语气轻松有趣，主动邀请留言或写信。直接给内容，不要思考过程。\n\n内容要简短，100字以内。可以确认记住榴莲和冰岛极光，邀请写\"给未来\"的信。\n\n写个回复：\n\n\"叮！榴莲+冰岛极光，已存档📦 下次见面我要是忘了，就罚我闻一整天榴莲～ 要不要再写封'给未来：……'的信？我替你保管，下次原样读给你听。\"\n\n数一下字数：大概70多字，可以。\n</think>叮！榴莲和小极光已存档📦 要是下次我忘了，罚我闻一整天榴莲～ 要不要再写封“给未来：……”的信？我替你保管，下次见面原样读给你听。",
+    "reasoning_content": "",
+    "usage": {
+     "completion_price": "0",
+     "completion_price_unit": "0",
+     "completion_tokens": 180,
+     "completion_unit_price": "0",
+     "currency": "USD",
+     "latency": 1.974,
+     "prompt_price": "0",
+     "prompt_price_unit": "0",
+     "prompt_tokens": 152,
+     "prompt_unit_price": "0",
+     "time_to_first_token": 0.865,
+     "time_to_generate": 1.11,
+     "total_price": "0",
+     "total_tokens": 332
+    },
+    "finish_reason": "stop"
+   }
+  },
+  {
+   "title": "清洗回复（初次）",
+   "status": "succeeded",
+   "elapsed_ms": 63.5,
+   "outputs": {
+    "text": "叮！榴莲和小极光已存档📦 要是下次我忘了，罚我闻一整天榴莲～ 要不要再写封“给未来：……”的信？我替你保管，下次见面原样读给你听。"
+   }
+  },
+  {
+   "title": "回复（初次）",
+   "status": "succeeded",
+   "elapsed_ms": 0.1,
+   "outputs": {
+    "answer": "叮！榴莲和小极光已存档📦 要是下次我忘了，罚我闻一整天榴莲～ 要不要再写封“给未来：……”的信？我替你保管，下次见面原样读给你听。",
+    "files": []
+   }
+  },
+  {
+   "title": "写回 PowerContext 记忆",
+   "status": "succeeded",
+   "elapsed_ms": 40.5,
+   "outputs": {
+    "status_code": 200,
+    "body": "{\"memory\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":1},\"entry\":{\"citation\":{\"memory_ref\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":1},\"entry_id\":\"mem_ent_2804fbd9178f4d44a8913867a1d11f67\",\"entry_version_id\":\"mem_ver_637ec25126014a92bd6de22ee04a75a3\"},\"version\":1,\"kind\":\"capsule_log\",\"text\":\"[用户] 记住：我最喜欢的水果是榴莲，梦想去冰岛看极光\",\"state\":\"active\",\"source_refs\":[],\"artifact_refs\":[]}}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "445",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:27 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "34cd33f9d1b9e3e1"
+    },
+    "files": []
+   }
+  }
+ ]
+}

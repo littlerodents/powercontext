@@ -1,0 +1,162 @@
+{
+ "purpose": "隔离验证（other-user）：不应看到 judge-demo 的记忆（hits=0 走初次分支）",
+ "conversation_id": "db1c0a75-65db-4035-b8fa-4f19db704f8c",
+ "workflow_run_id": "06a803aa-6bb0-43f6-8210-e2252d93d1a8",
+ "hit_count": 0,
+ "branch_took_memory_path": false,
+ "final_answer": "咱们才第一次见呀，我还没记住呢！现在告诉我你最爱什么水果？我帮你存进时光胶囊～",
+ "node_count": 11,
+ "all_nodes_succeeded": true,
+ "nodes": [
+  {
+   "title": "开始",
+   "status": "succeeded",
+   "elapsed_ms": 0.1,
+   "outputs": {
+    "user_id": "other-user"
+   }
+  },
+  {
+   "title": "派生隔离Scope与请求体",
+   "status": "succeeded",
+   "elapsed_ms": 34.8,
+   "outputs": {
+    "derived_scope": "dify-capsule-other-user",
+    "ensure_body": "{\"title\": \"Dify Capsule Partner\", \"summary\": \"capsule memories\", \"idempotency_key\": \"ensure-dify-capsule-other-user\"}",
+    "remember_body": "{\"kind\": \"capsule_log\", \"text\": \"[用户] 我之前跟你说过我最喜欢什么水果？\", \"reason\": \"Dify capsule auto-memory\"}",
+    "uid": "other-user"
+   }
+  },
+  {
+   "title": "确保Scope存在",
+   "status": "succeeded",
+   "elapsed_ms": 12.7,
+   "outputs": {
+    "status_code": 201,
+    "body": "{\"scope_id\":\"scp_3vsazzww4vh4mvbeg4w95yyr85\",\"title\":\"Dify Capsule Partner\",\"summary\":\"capsule memories\",\"parent_scope_id\":null,\"context_references\":[],\"external_references\":[],\"version\":1}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "189",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:37 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "86d069378b0a033e"
+    },
+    "files": []
+   }
+  },
+  {
+   "title": "解析Scope并构造请求体",
+   "status": "succeeded",
+   "elapsed_ms": 35.3,
+   "outputs": {
+    "scope_id": "scp_3vsazzww4vh4mvbeg4w95yyr85",
+    "recall_body": "{\"scope_id\": \"scp_3vsazzww4vh4mvbeg4w95yyr85\", \"query\": \"我之前跟你说过我最喜欢什么水果？\", \"limit\": 5}",
+    "remember_body": "{\"scope_id\": \"scp_3vsazzww4vh4mvbeg4w95yyr85\", \"kind\": \"capsule_log\", \"text\": \"[用户] 我之前跟你说过我最喜欢什么水果？\", \"reason\": \"Dify capsule auto-memory\"}"
+   }
+  },
+  {
+   "title": "召回 PowerContext 记忆",
+   "status": "succeeded",
+   "elapsed_ms": 22.9,
+   "outputs": {
+    "status_code": 200,
+    "body": "{\"memory\":null,\"mode\":null,\"hits\":[]}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "37",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:37 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "d2e15ffebf4ee44d"
+    },
+    "files": []
+   }
+  },
+  {
+   "title": "提取记忆命中",
+   "status": "succeeded",
+   "elapsed_ms": 37.6,
+   "outputs": {
+    "hit_count": 0,
+    "memory_texts": ""
+   }
+  },
+  {
+   "title": "是否有历史记忆",
+   "status": "succeeded",
+   "elapsed_ms": 0.1,
+   "outputs": {
+    "result": false,
+    "selected_case_id": "false"
+   }
+  },
+  {
+   "title": "初次见面回复",
+   "status": "succeeded",
+   "elapsed_ms": 1689.7,
+   "outputs": {
+    "text": "<think>\n<!--dify-deepseek-reasoning-->We are first meeting. No past memory. Need answer short under 100 chars. Need respond in Chinese, playful, say this is first meet and no record. Invite to leave preference. Maybe \"咱们才第一次见呀，我还没记住呢！现在告诉我你最爱什么水果？我帮你存进时光胶囊～\" Under 100 chars. Direct content only no tags.\n</think>咱们才第一次见呀，我还没记住呢！现在告诉我你最爱什么水果？我帮你存进时光胶囊～",
+    "reasoning_content": "",
+    "usage": {
+     "completion_price": "0",
+     "completion_price_unit": "0",
+     "completion_tokens": 104,
+     "completion_unit_price": "0",
+     "currency": "USD",
+     "latency": 1.684,
+     "prompt_price": "0",
+     "prompt_price_unit": "0",
+     "prompt_tokens": 135,
+     "prompt_unit_price": "0",
+     "time_to_first_token": 0.885,
+     "time_to_generate": 0.799,
+     "total_price": "0",
+     "total_tokens": 239
+    },
+    "finish_reason": "stop"
+   }
+  },
+  {
+   "title": "清洗回复（初次）",
+   "status": "succeeded",
+   "elapsed_ms": 101.1,
+   "outputs": {
+    "text": "咱们才第一次见呀，我还没记住呢！现在告诉我你最爱什么水果？我帮你存进时光胶囊～"
+   }
+  },
+  {
+   "title": "回复（初次）",
+   "status": "succeeded",
+   "elapsed_ms": 0.2,
+   "outputs": {
+    "answer": "咱们才第一次见呀，我还没记住呢！现在告诉我你最爱什么水果？我帮你存进时光胶囊～",
+    "files": []
+   }
+  },
+  {
+   "title": "写回 PowerContext 记忆",
+   "status": "succeeded",
+   "elapsed_ms": 48.7,
+   "outputs": {
+    "status_code": 200,
+    "body": "{\"memory\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":1},\"entry\":{\"citation\":{\"memory_ref\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":1},\"entry_id\":\"mem_ent_5128296569e1450b8f5d96ddbf008c77\",\"entry_version_id\":\"mem_ver_3ace347a39794c7b99e042dc51714b0f\"},\"version\":1,\"kind\":\"capsule_log\",\"text\":\"[用户] 我之前跟你说过我最喜欢什么水果？\",\"state\":\"active\",\"source_refs\":[],\"artifact_refs\":[]}}",
+    "headers": {
+     "cache-status": "022787e24135;detail=mismatch",
+     "connection": "keep-alive",
+     "content-length": "427",
+     "content-type": "application/json",
+     "date": "Fri, 06 Nov 2026 06:19:39 GMT",
+     "server": "uvicorn",
+     "via": "1.1 022787e24135 (squid/6.13)",
+     "x-powercontext-request-id": "9a3d0c2afbba2cb4"
+    },
+    "files": []
+   }
+  }
+ ]
+}
